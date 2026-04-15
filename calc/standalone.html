@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор класса бетона</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#0a1628;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.cc-header{background:#0d1f3c;border-bottom:1px solid #1a3a6a;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:20px 16px}
+.cc-header-inner{max-width:960px;margin:0 auto}
+.cc-header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
+.cc-header h1 span{color:#60a5fa}
+.cc-header p{color:rgba(147,197,253,.5);font-size:13px;margin-top:4px}
+.cc-main{max-width:960px;margin:0 auto;padding:24px 16px}
+.cc-steps{display:flex;align-items:flex-start;gap:4px;margin-bottom:24px}
+.cc-step-item{flex:1;display:flex;flex-direction:column;align-items:center}
+.cc-step-row{display:flex;align-items:center;width:100%}
+.cc-step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;transition:all .3s}
+.cc-step-circle.active{background:#3b82f6;color:#fff;box-shadow:0 0 20px rgba(59,130,246,.3)}
+.cc-step-circle.done{background:rgba(59,130,246,.3);color:#93c5fd;border:1px solid rgba(59,130,246,.5)}
+.cc-step-circle.pending{background:#152238;color:#6b7280;border:1px solid #374151}
+.cc-step-line{flex:1;height:2px;margin:0 4px;transition:all .3s}
+.cc-step-line.done{background:rgba(59,130,246,.5)}
+.cc-step-line.pending{background:#374151}
+.cc-step-label{font-size:10px;margin-top:6px;text-align:center;line-height:1.3}
+.cc-step-label.active{color:#93c5fd}
+.cc-step-label.done{color:rgba(96,165,250,.5)}
+.cc-step-label.pending{color:#4b5563}
+.cc-card{background:#0d1f3c;border-radius:16px;border:1px solid #1a3a6a;box-shadow:0 8px 30px rgba(0,0,0,.3);overflow:hidden}
+.cc-card-body{padding:24px}
+@media(min-width:768px){.cc-card-body{padding:32px}}
+.cc-card h2{font-size:20px;font-weight:600;margin-bottom:4px}
+.cc-card .cc-subtitle{color:rgba(147,197,253,.45);font-size:13px;margin-bottom:24px}
+.cc-section{margin-bottom:24px}
+.cc-section:last-child{margin-bottom:0}
+.cc-section-title{color:#60a5fa;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.cc-grid{display:grid;gap:8px;grid-template-columns:1fr}
+.cc-grid-2{grid-template-columns:repeat(2,1fr)}
+.cc-grid-3{grid-template-columns:repeat(3,1fr)}
+.cc-grid-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:768px){.cc-grid-2,.cc-grid-3,.cc-grid-4{grid-template-columns:1fr}}
+@media(min-width:640px) and (max-width:768px){.cc-grid-2{grid-template-columns:repeat(2,1fr)}.cc-grid-3{grid-template-columns:repeat(2,1fr)}.cc-grid-4{grid-template-columns:repeat(2,1fr)}}
+.cc-option{text-align:left;padding:12px;border-radius:12px;border:1px solid #1e3a5f;background:#152238;cursor:pointer;transition:all .2s;color:#fff;font-family:inherit;font-size:14px;width:100%}
+.cc-option:hover{border-color:rgba(59,130,246,.5);background:#1a2d4a}
+.cc-option.selected{background:rgba(59,130,246,.2);border-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,.1)}
+.cc-option .cc-opt-label{font-weight:500;font-size:13px}
+.cc-option .cc-opt-desc{font-size:11px;color:#9ca3af;margin-top:2px}
+.cc-group-title{color:#60a5fa;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:20px}
+.cc-group-title:first-child{margin-top:0}
+.cc-nav{border-top:1px solid #1a3a6a;background:#0b1a30;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+.cc-btn{padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:inherit}
+.cc-btn-secondary{background:#152238;border:1px solid #1e3a5f;color:#d1d5db}
+.cc-btn-secondary:hover{background:#1a2d4a;color:#fff}
+.cc-btn-primary{background:#3b82f6;color:#fff;box-shadow:0 4px 15px rgba(59,130,246,.25)}
+.cc-btn-primary:hover{background:#60a5fa}
+.cc-btn-primary:disabled{background:#374151;color:#6b7280;cursor:not-allowed;box-shadow:none}
+.cc-result-card{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(30,58,95,.3));border:1px solid rgba(59,130,246,.3);border-radius:16px;padding:24px;margin-bottom:24px}
+.cc-result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(min-width:768px){.cc-result-grid{grid-template-columns:repeat(4,1fr)}}
+.cc-result-item{text-align:center}
+.cc-result-label{font-size:10px;color:rgba(147,197,253,.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.cc-result-value{font-size:28px;font-weight:700;color:#fff}
+.cc-result-value.accent{color:#60a5fa}
+.cc-result-sub{font-size:11px;color:#9ca3af;margin-top:4px}
+.cc-notes{background:#152238;border:1px solid rgba(202,138,4,.3);border-radius:12px;padding:20px;margin-bottom:24px}
+.cc-notes-title{color:#facc15;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.cc-notes ul{list-style:none}
+.cc-notes li{font-size:13px;color:#d1d5db;padding:4px 0;display:flex;align-items:flex-start;gap:8px}
+.cc-notes li::before{content:'•';color:#eab308;flex-shrink:0;margin-top:1px}
+.cc-summary{background:#152238;border:1px solid #1e3a5f;border-radius:12px;padding:20px}
+.cc-summary-title{color:#60a5fa;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.cc-summary-grid{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:768px){.cc-summary-grid{grid-template-columns:repeat(2,1fr);column-gap:24px}}
+.cc-summary-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,58,95,.5);font-size:13px}
+.cc-summary-row .cc-sr-label{color:#9ca3af}
+.cc-summary-row .cc-sr-value{color:#fff;font-weight:500}
+.cc-footer{text-align:center;font-size:11px;color:#4b5563;margin-top:24px;padding-bottom:32px}
+.cc-groups-container{max-height:60vh;overflow-y:auto;padding-right:4px}
+.cc-groups-container::-webkit-scrollbar{width:6px}
+.cc-groups-container::-webkit-scrollbar-track{background:#0d1f3c}
+.cc-groups-container::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  // Шкала классов B10 — B90 (20 позиций, индексы 0..19)
+  var CLASS_SCALE=['B10','B12.5','B15','B20','B22.5','B25','B27.5','B30','B35','B40','B45','B50','B55','B60','B65','B70','B75','B80','B85','B90'];
+
+  function classAtIndex(i){if(i<0)return CLASS_SCALE[0];if(i>=CLASS_SCALE.length)return CLASS_SCALE[CLASS_SCALE.length-1];return CLASS_SCALE[i]}
+
+  function classToMarka(c){
+    var m={
+      'B10':'M150','B12.5':'M150','B15':'M200','B20':'M250',
+      'B22.5':'M300','B25':'M350','B27.5':'M350','B30':'M400',
+      'B35':'M450','B40':'M550','B45':'M600','B50':'M700',
+      'B55':'M750','B60':'M800','B65':'M850','B70':'M900',
+      'B75':'M1000','B80':'M1050','B85':'M1100','B90':'M1200'
+    };
+    return m[c]||'—';
+  }
+
+  var CONSTRUCTION_GROUPS=[
+    {group:'Ненагруженные конструкции',options:[
+      {id:'floor_screed',label:'Стяжки полов',description:'Выравнивающие стяжки, подготовительные слои',baseClassIndex:0},
+      {id:'prep_layer',label:'Подготовительные слои',description:'Бетонная подготовка под фундамент',baseClassIndex:1},
+      {id:'sidewalk',label:'Тротуары',description:'Пешеходные дорожки, отмостки',baseClassIndex:2}
+    ]},
+    {group:'Малонагруженные конструкции',options:[
+      {id:'fence_found',label:'Фундаменты под заборы',description:'Столбчатые и ленточные фундаменты заборов',baseClassIndex:2},
+      {id:'garden_path',label:'Садовые дорожки',description:'Декоративные дорожки, площадки',baseClassIndex:2},
+      {id:'small_building',label:'Небольшие хозпостройки',description:'Сараи, беседки, навесы',baseClassIndex:3}
+    ]},
+    {group:'Фундаменты',options:[
+      {id:'found_strip',label:'Ленточный (малоэтажный дом)',description:'Для домов 1-3 этажа',baseClassIndex:4,showGroundwater:true,showSoil:true},
+      {id:'found_slab',label:'Плитный (дом, гараж)',description:'Монолитная плита',baseClassIndex:6,showGroundwater:true,showSoil:true},
+      {id:'found_pile',label:'Свайно-ростверковый',description:'Для сложных грунтов',baseClassIndex:6,showGroundwater:true,showSoil:true},
+      {id:'basement',label:'Цокольные этажи, подвалы',description:'Заглублённые помещения',baseClassIndex:6,showGroundwater:true,showSoil:true}
+    ]},
+    {group:'Стены',options:[
+      {id:'wall_bearing',label:'Несущие (многоэтажные)',description:'Несущие стены зданий',baseClassIndex:7},
+      {id:'wall_self',label:'Самонесущие',description:'Стены, несущие только свой вес',baseClassIndex:4},
+      {id:'wall_partition',label:'Перегородки',description:'Внутренние ненесущие стены',baseClassIndex:3}
+    ]},
+    {group:'Перекрытия',options:[
+      {id:'slab_inter',label:'Межэтажные',description:'Перекрытия между этажами',baseClassIndex:7},
+      {id:'slab_base',label:'Цокольные',description:'Перекрытие над подвалом',baseClassIndex:6},
+      {id:'slab_attic',label:'Чердачные',description:'Перекрытие под кровлей',baseClassIndex:4}
+    ]},
+    {group:'Колонны, опоры',options:[
+      {id:'col_decorative',label:'Декоративные',description:'Декоративные столбы, опоры',baseClassIndex:4},
+      {id:'col_bearing',label:'Несущие (высотные здания)',description:'Колонны каркасных зданий',baseClassIndex:10}
+    ]},
+    {group:'Балки, ригели',options:[
+      {id:'beam_span',label:'Прогоны',description:'Балки перекрытий и покрытий',baseClassIndex:7},
+      {id:'beam_lintel',label:'Перемычки',description:'Оконные и дверные перемычки',baseClassIndex:6}
+    ]},
+    {group:'Специальные конструкции',options:[
+      {id:'stair',label:'Лестничные марши',description:'Лестницы, площадки',baseClassIndex:7},
+      {id:'pool',label:'Бассейны',description:'Чаши бассейнов',baseClassIndex:8},
+      {id:'reservoir',label:'Резервуары для воды',description:'Ёмкости, цистерны',baseClassIndex:8},
+      {id:'road_slab',label:'Дорожные плиты',description:'Плиты покрытий дорог',baseClassIndex:9},
+      {id:'curb',label:'Бордюры',description:'Бордюрные камни',baseClassIndex:6}
+    ]},
+    {group:'Мостовые и гидротехнические',options:[
+      {id:'bridge',label:'Опоры мостов',description:'Мостовые конструкции',baseClassIndex:12},
+      {id:'dam',label:'Плотины',description:'Гидротехнические сооружения',baseClassIndex:14},
+      {id:'pier',label:'Причалы',description:'Портовые сооружения',baseClassIndex:12}
+    ]}
+  ];
+
+  var LOAD_OPTIONS=[
+    {id:'static',label:'Статические нагрузки',description:'Вес конструкции, отделки, оборудования (постоянные)',classModifier:0},
+    {id:'dynamic',label:'Динамические/вибрационные',description:'Станки, транспорт, пешеходный поток',classModifier:2}
+  ];
+  var TEMP_OPTIONS=[
+    {id:'standard',label:'Стандартный (-30°C до +30°C)',description:'Обычные климатические условия',classModifier:0,frostReq:'F100'},
+    {id:'frost',label:'Морозный (ниже -30°C)',description:'Высокая морозостойкость',classModifier:1,frostReq:'F200'},
+    {id:'hot',label:'Жаркий/пожароопасный',description:'Повышенные температуры, жаропрочность',classModifier:1,notes:'Рекомендуется жаростойкий бетон'}
+  ];
+  var MOISTURE_OPTIONS=[
+    {id:'dry',label:'Сухие условия',description:'Отапливаемые помещения',classModifier:0},
+    {id:'humid',label:'Влажные условия',description:'Подвалы, сырые помещения',classModifier:0,waterproofReq:'W4'},
+    {id:'periodic_water',label:'Периодический контакт с водой',description:'Ливневые стоки, отмостки',classModifier:1,waterproofReq:'W6',frostBoost:'F150'},
+    {id:'constant_water',label:'Постоянный контакт с водой',description:'Бассейны, резервуары',classModifier:2,waterproofReq:'W8',frostBoost:'F200'},
+    {id:'aggressive',label:'Агрессивная среда',description:'Морская вода, химические пары',classModifier:3,waterproofReq:'W12',frostBoost:'F300',notes:'Рекомендуется сульфатостойкий цемент'}
+  ];
+  var SOIL_OPTIONS=[
+    {id:'rock',label:'Скальный/крупнообломочный',description:'Прочный, непучинистый',classModifier:0},
+    {id:'sand',label:'Песчаный',description:'Средней пучинистости, хорошо дренирует',classModifier:0},
+    {id:'loam',label:'Супесь/Суглинок',description:'Пучинистый, требует внимания',classModifier:1},
+    {id:'clay',label:'Глина',description:'Сильно пучинистый, высокая жёсткость фундамента',classModifier:2},
+    {id:'peat',label:'Заторфованный/слабый',description:'Требует свай или усиленного основания',classModifier:3}
+  ];
+  var GROUNDWATER_OPTIONS=[
+    {id:'low',label:'Низкий уровень',description:'',classModifier:0},
+    {id:'variable',label:'Переменный уровень',description:'',classModifier:1,waterproofReq:'W6'},
+    {id:'high',label:'Высокий уровень',description:'',classModifier:2,waterproofReq:'W8'}
+  ];
+  var THICKNESS_OPTIONS=[
+    {id:'thin',label:'Тонкостенные (менее 150 мм)',description:'',classModifier:1},
+    {id:'medium',label:'Стандартные (150–500 мм)',description:'',classModifier:0},
+    {id:'massive',label:'Массивные (более 500 мм)',description:'',classModifier:0}
+  ];
+  var FLOORS_OPTIONS=[
+    {id:'1-2',label:'1–2 этажа',description:'',classModifier:0,baseClassIndex:4},
+    {id:'3-5',label:'3–5 этажей',description:'',classModifier:0,baseClassIndex:7},
+    {id:'6-16',label:'6–16 этажей',description:'',classModifier:0,baseClassIndex:10},
+    {id:'16+',label:'Свыше 16 этажей',description:'',classModifier:0,baseClassIndex:14}
+  ];
+  var REINFORCEMENT_OPTIONS=[
+    {id:'none',label:'Неармированные',description:'',classModifier:0},
+    {id:'light',label:'Слабоармированные',description:'',classModifier:0},
+    {id:'prestressed',label:'Предварительно напряжённые',description:'Минимальный класс B30',classModifier:3,notes:'Минимальный класс B30 для предварительного напряжения'}
+  ];
+
+  // State
+  var step=1;
+  var sel={construction:null,load:null,temp:null,moisture:null,soil:null,groundwater:null,thickness:null,floors:null,reinforcement:null};
+
+  var appEl=document.getElementById('app');
+
+  function el(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e}
+
+  function render(){
+    appEl.innerHTML='';
+
+    // Header
+    var hdr=el('div','cc-header');
+    var hdrIn=el('div','cc-header-inner');
+    hdrIn.innerHTML='<h1><span>◆</span> Калькулятор класса бетона</h1><p>Определение рекомендуемого класса бетона по параметрам конструкции (B10 — B90)</p>';
+    hdr.appendChild(hdrIn);
+    appEl.appendChild(hdr);
+
+    var main=el('div','cc-main');
+
+    // Steps
+    var stepNames=['Тип конструкции','Нагрузки и среда','Геометрия','Результат'];
+    var stepsDiv=el('div','cc-steps');
+    for(var i=0;i<4;i++){
+      var sn=i+1,isA=step===sn,isD=step>sn;
+      var item=el('div','cc-step-item'),row=el('div','cc-step-row');
+      var circle=el('div','cc-step-circle '+(isA?'active':isD?'done':'pending'));
+      circle.textContent=isD?'✓':String(sn);
+      row.appendChild(circle);
+      if(i<3){var line=el('div','cc-step-line '+(isD?'done':'pending'));row.appendChild(line)}
+      item.appendChild(row);
+      var lbl=el('div','cc-step-label '+(isA?'active':isD?'done':'pending'));
+      lbl.textContent=stepNames[i];
+      item.appendChild(lbl);
+      stepsDiv.appendChild(item);
+    }
+    main.appendChild(stepsDiv);
+
+    var card=el('div','cc-card'),body=el('div','cc-card-body');
+
+    if(step===1)renderStep1(body);
+    else if(step===2)renderStep2(body);
+    else if(step===3)renderStep3(body);
+    else if(step===4)renderStep4(body);
+
+    card.appendChild(body);
+
+    // Nav
+    var nav=el('div','cc-nav'),navL=el('div',''),navR=el('div','');
+    if(step>1&&step<4){
+      var bb=el('button','cc-btn cc-btn-secondary');bb.textContent='← Назад';
+      bb.onclick=function(){step--;render()};navL.appendChild(bb);
+    }
+    if(step===4){
+      var rb=el('button','cc-btn cc-btn-secondary');rb.textContent='↺ Начать заново';
+      rb.onclick=function(){step=1;sel={construction:null,load:null,temp:null,moisture:null,soil:null,groundwater:null,thickness:null,floors:null,reinforcement:null};render()};
+      navL.appendChild(rb);
+    }
+    if(step<4){
+      var nb=el('button','cc-btn cc-btn-primary');
+      var canN=false;
+      if(step===1){canN=!!sel.construction;nb.textContent='Далее →'}
+      else if(step===2){
+        var ss=sel.construction&&sel.construction.showSoil,sg=sel.construction&&sel.construction.showGroundwater;
+        canN=!!sel.load&&!!sel.temp&&!!sel.moisture&&(!ss||!!sel.soil)&&(!sg||!!sel.groundwater);
+        nb.textContent='Далее →';
+      }else if(step===3){
+        canN=!!sel.thickness&&!!sel.floors&&!!sel.reinforcement;
+        nb.textContent='Рассчитать ✓';
+      }
+      nb.disabled=!canN;
+      nb.onclick=function(){if(!nb.disabled){step++;render()}};
+      navR.appendChild(nb);
+    }
+    nav.appendChild(navL);nav.appendChild(navR);card.appendChild(nav);
+    main.appendChild(card);
+
+    var ft=el('div','cc-footer');
+    ft.textContent='Калькулятор предоставляет рекомендательный результат. Для ответственных конструкций обратитесь к проектной документации.';
+    main.appendChild(ft);
+    appEl.appendChild(main);
+  }
+
+  function addSection(container,title,options,selected,gridCls,onSel){
+    var sec=el('div','cc-section');
+    var t=el('div','cc-section-title');t.textContent=title;sec.appendChild(t);
+    var g=el('div','cc-grid '+gridCls);
+    for(var i=0;i<options.length;i++){
+      (function(opt){
+        var btn=el('button','cc-option'+(selected&&selected.id===opt.id?' selected':''));
+        var h='<div class="cc-opt-label">'+opt.label+'</div>';
+        if(opt.description)h+='<div class="cc-opt-desc">'+opt.description+'</div>';
+        btn.innerHTML=h;
+        btn.onclick=function(){onSel(opt)};
+        g.appendChild(btn);
+      })(options[i]);
+    }
+    sec.appendChild(g);container.appendChild(sec);
+  }
+
+  function renderStep1(c){
+    c.innerHTML='<h2>Шаг 1. Тип конструкции</h2><p class="cc-subtitle">Выберите тип конструкции, для которой подбирается бетон</p>';
+    var sc=el('div','cc-groups-container');
+    for(var gi=0;gi<CONSTRUCTION_GROUPS.length;gi++){
+      var grp=CONSTRUCTION_GROUPS[gi];
+      var gt=el('div','cc-group-title');gt.textContent=grp.group;sc.appendChild(gt);
+      var grid=el('div','cc-grid cc-grid-3');
+      for(var oi=0;oi<grp.options.length;oi++){
+        (function(opt){
+          var btn=el('button','cc-option'+(sel.construction&&sel.construction.id===opt.id?' selected':''));
+          btn.innerHTML='<div class="cc-opt-label">'+opt.label+'</div><div class="cc-opt-desc">'+opt.description+'</div>';
+          btn.onclick=function(){
+            sel.construction=opt;
+            if(!opt.showSoil)sel.soil=null;
+            if(!opt.showGroundwater)sel.groundwater=null;
+            render();
+          };
+          grid.appendChild(btn);
+        })(grp.options[oi]);
+      }
+      sc.appendChild(grid);
+    }
+    c.appendChild(sc);
+  }
+
+  function renderStep2(c){
+    c.innerHTML='<h2>Шаг 2. Нагрузки и среда эксплуатации</h2><p class="cc-subtitle">Укажите характер нагрузок и условия эксплуатации</p>';
+    addSection(c,'Характер нагрузок',LOAD_OPTIONS,sel.load,'cc-grid-2',function(o){sel.load=o;render()});
+    addSection(c,'Температурный режим',TEMP_OPTIONS,sel.temp,'cc-grid-3',function(o){sel.temp=o;render()});
+    addSection(c,'Влажностный режим / контакт с водой',MOISTURE_OPTIONS,sel.moisture,'cc-grid-3',function(o){sel.moisture=o;render()});
+    if(sel.construction&&sel.construction.showSoil)
+      addSection(c,'Тип грунта',SOIL_OPTIONS,sel.soil,'cc-grid-3',function(o){sel.soil=o;render()});
+    if(sel.construction&&sel.construction.showGroundwater)
+      addSection(c,'Уровень грунтовых вод',GROUNDWATER_OPTIONS,sel.groundwater,'cc-grid-3',function(o){sel.groundwater=o;render()});
+  }
+
+  function renderStep3(c){
+    c.innerHTML='<h2>Шаг 3. Геометрия и армирование</h2><p class="cc-subtitle">Укажите геометрические параметры и тип армирования</p>';
+    addSection(c,'Толщина элемента',THICKNESS_OPTIONS,sel.thickness,'cc-grid-3',function(o){sel.thickness=o;render()});
+    addSection(c,'Этажность / высота здания',FLOORS_OPTIONS,sel.floors,'cc-grid-4',function(o){sel.floors=o;render()});
+    addSection(c,'Наличие армирования',REINFORCEMENT_OPTIONS,sel.reinforcement,'cc-grid-3',function(o){sel.reinforcement=o;render()});
+  }
+
+  function renderStep4(c){
+    var r=computeResult();
+    c.innerHTML='<h2>Результат расчёта</h2><p class="cc-subtitle">Рекомендуемые характеристики бетона</p>';
+
+    var rc=el('div','cc-result-card'),rg=el('div','cc-result-grid');
+    rg.appendChild(mkRI('Класс бетона',r.concreteClass,'≈ '+classToMarka(r.concreteClass),true));
+    rg.appendChild(mkRI('Морозостойкость',r.frostMark,'марка по морозостойкости',false));
+    rg.appendChild(mkRI('Водонепроницаемость',r.waterproofMark,'марка по водонепроницаемости',false));
+    rg.appendChild(mkRI('Марка прочности',classToMarka(r.concreteClass),'ориентировочная',false));
+    rc.appendChild(rg);c.appendChild(rc);
+
+    if(r.notes.length>0){
+      var nd=el('div','cc-notes');
+      nd.innerHTML='<div class="cc-notes-title">⚠ Дополнительные рекомендации</div>';
+      var ul=document.createElement('ul');
+      for(var i=0;i<r.notes.length;i++){var li=document.createElement('li');li.textContent=r.notes[i];ul.appendChild(li)}
+      nd.appendChild(ul);c.appendChild(nd);
+    }
+
+    var sm=el('div','cc-summary');
+    sm.innerHTML='<div class="cc-summary-title">Сводка введённых параметров</div>';
+    var sg=el('div','cc-summary-grid');
+    var rows=[['Конструкция',sel.construction?sel.construction.label:'—'],['Нагрузки',sel.load?sel.load.label:'—'],['Температура',sel.temp?sel.temp.label:'—'],['Влажность',sel.moisture?sel.moisture.label:'—']];
+    if(sel.construction&&sel.construction.showSoil)rows.push(['Грунт',sel.soil?sel.soil.label:'—']);
+    if(sel.construction&&sel.construction.showGroundwater)rows.push(['Грунтовые воды',sel.groundwater?sel.groundwater.label:'—']);
+    rows.push(['Толщина',sel.thickness?sel.thickness.label:'—']);
+    rows.push(['Этажность',sel.floors?sel.floors.label:'—']);
+    rows.push(['Армирование',sel.reinforcement?sel.reinforcement.label:'—']);
+    for(var i=0;i<rows.length;i++){
+      var rw=el('div','cc-summary-row');
+      rw.innerHTML='<span class="cc-sr-label">'+rows[i][0]+':</span><span class="cc-sr-value">'+rows[i][1]+'</span>';
+      sg.appendChild(rw);
+    }
+    sm.appendChild(sg);c.appendChild(sm);
+  }
+
+  function mkRI(label,value,sub,accent){
+    var d=el('div','cc-result-item');
+    d.innerHTML='<div class="cc-result-label">'+label+'</div><div class="cc-result-value'+(accent?' accent':'')+'">'+ value+'</div><div class="cc-result-sub">'+sub+'</div>';
+    return d;
+  }
+
+  function computeResult(){
+    var bases=[];
+    if(sel.construction)bases.push(sel.construction.baseClassIndex);
+    if(sel.floors&&sel.floors.baseClassIndex!==undefined)bases.push(sel.floors.baseClassIndex);
+    var maxBase=bases.length>0?Math.max.apply(null,bases):4;
+    var mod=0;
+    if(sel.load)mod+=sel.load.classModifier;
+    if(sel.temp)mod+=sel.temp.classModifier;
+    if(sel.moisture)mod+=sel.moisture.classModifier;
+    if(sel.soil)mod+=sel.soil.classModifier;
+    if(sel.groundwater)mod+=sel.groundwater.classModifier;
+    if(sel.thickness)mod+=sel.thickness.classModifier;
+    if(sel.reinforcement)mod+=sel.reinforcement.classModifier;
+    var fi=maxBase+mod;
+    if(sel.reinforcement&&sel.reinforcement.id==='prestressed'){var b30=CLASS_SCALE.indexOf('B30');if(fi<b30)fi=b30}
+    var cc=classAtIndex(fi);
+
+    var fm=sel.temp&&sel.temp.frostReq?sel.temp.frostReq:'F100';
+    if(sel.moisture&&sel.moisture.frostBoost){var fn=function(s){return parseInt(s.replace('F',''))};if(fn(sel.moisture.frostBoost)>fn(fm))fm=sel.moisture.frostBoost}
+
+    var wps=[];
+    if(sel.moisture&&sel.moisture.waterproofReq)wps.push(sel.moisture.waterproofReq);
+    if(sel.groundwater&&sel.groundwater.waterproofReq)wps.push(sel.groundwater.waterproofReq);
+    var wpn=function(s){return parseInt(s.replace('W',''))};
+    var wm='—';
+    if(wps.length>0){var mx=0;for(var i=0;i<wps.length;i++){var v=wpn(wps[i]);if(v>mx)mx=v}wm='W'+mx}
+
+    var notes=[];
+    if(sel.temp&&sel.temp.notes)notes.push(sel.temp.notes);
+    if(sel.moisture&&sel.moisture.notes)notes.push(sel.moisture.notes);
+    if(sel.reinforcement&&sel.reinforcement.notes)notes.push(sel.reinforcement.notes);
+    if(sel.soil&&sel.soil.id==='peat')notes.push('Для слабых грунтов рекомендуется свайный фундамент или замена грунта');
+    if(sel.groundwater&&sel.groundwater.id==='high')notes.push('При высоком уровне грунтовых вод обязательна гидроизоляция');
+
+    if(sel.construction&&(sel.construction.id==='pool'||sel.construction.id==='reservoir')){
+      if(wm==='—'||wpn(wm)<8){wm='W8';notes.push('Для водосодержащих конструкций минимальная водонепроницаемость W8')}
+    }
+    if(sel.construction&&(sel.construction.id==='bridge'||sel.construction.id==='dam'||sel.construction.id==='pier')){
+      var fnn=function(s){return parseInt(s.replace('F',''))};
+      if(fnn(fm)<200)fm='F200';
+      notes.push('Для мостовых/гидротехнических конструкций требуется повышенная морозостойкость');
+    }
+    return{concreteClass:cc,frostMark:fm,waterproofMark:wm,notes:notes};
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
