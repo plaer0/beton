@@ -925,7 +925,7 @@ function getAiDestructionPrompt(structureKey, loadMpa, strengthMpa) {
     const level = getDamageLevelKeyFromRatio(ratio);
     const base = AI_DESTRUCTION_PROMPTS[structureKey][level];
     if (!base) return null;
-    return `${base}${AI_PROMPT_REALISM_SUFFIX}`;
+    return `${base}${AI_PROMPT_REALISM_SUFFIX} Landscape orientation: wide horizontal frame, clearly wider than tall, single panoramic establishing shot, not vertical portrait.`;
 }
 
 function getAiDestructionMeta(loadMpa, strengthMpa, structureKey) {
@@ -1416,8 +1416,14 @@ async function generateAiDestructionImage() {
          * Сначала gpt-image-1 (у вас стабильно отдаёт картинку), затем запас — dall-e-3.
          */
         const attempts = [
-            { label: 'gpt-image-1', body: { model: 'gpt-image-1', prompt, quality: 'low', moderation: 'low' } },
-            { label: 'dall-e-3', body: { model: 'dall-e-3', prompt, n: 1, size: '1024x1024', quality: 'standard' } }
+            {
+                label: 'gpt-image-1',
+                body: { model: 'gpt-image-1', prompt, quality: 'low', moderation: 'low', size: '1536x1024' }
+            },
+            {
+                label: 'dall-e-3',
+                body: { model: 'dall-e-3', prompt, n: 1, size: '1792x1024', quality: 'standard' }
+            }
         ];
 
         let lastFailure = '';

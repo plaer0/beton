@@ -2455,24 +2455,15 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--accent-color);
 }
 
-/* Адаптив */
+/* Адаптив (старый блок — оставлен для совместимости) */
 @media (max-width: 600px) {
     .wizard-container {
-        padding: 1.5rem;
+        padding: 18px 16px;
         border-radius: 20px;
     }
 
-    .step-footer {
-        flex-direction: column-reverse;
-        gap: 1rem;
-    }
-
-    .btn-wizard {
-        width: 100%;
-    }
-
     .constructor-header h2 {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 }
 /* 
@@ -2995,28 +2986,53 @@ h1, h2, h3, h4, h5, h6 {
 /* Адаптивность */
 @media (max-width: 768px) {
     .wizard-container {
-        padding: 24px;
+        padding: 20px 18px;
     }
 
     .step-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
+        margin-bottom: 6px;
     }
 
+    /* 2 колонки вместо 1 — как на десктопе, но компактнее */
     .cards-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
     .rc-value {
         font-size: 2.5rem;
     }
 
+    /* Кнопки остаются в одну строку, растягиваются поровну */
     .step-footer {
-        flex-direction: column-reverse;
+        flex-direction: row;
+        gap: 10px;
     }
 
     .step-footer .btn-wizard {
-        width: 100%;
+        flex: 1;
         justify-content: center;
+    }
+
+    /* Уменьшить точки прогресса */
+    .wizard-progress .step-dot {
+        width: 34px;
+        height: 34px;
+        font-size: 0.8rem;
+    }
+
+    .wizard-progress {
+        margin-bottom: 28px;
+    }
+
+    /* Компактные карточки */
+    .card-content {
+        padding: 12px 10px;
+    }
+
+    .category-group {
+        margin-bottom: 22px;
     }
 }
 
@@ -3932,7 +3948,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .lab-polygone-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr);
     gap: clamp(1rem, 2vw, 1.75rem);
     align-items: stretch;
     opacity: 0;
@@ -4457,13 +4473,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ai-result-panel.ai-result-panel--open {
-    max-height: 1400px;
+    max-height: 920px;
     opacity: 1;
     margin-top: 1.25rem;
 }
 
 .ai-result-panel-inner {
-    max-width: 500px;
+    max-width: min(100%, 720px);
     width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -4557,7 +4573,7 @@ h1, h2, h3, h4, h5, h6 {
 .ai-result-image-wrap img {
     display: block;
     width: 100%;
-    max-width: 500px;
+    max-width: min(100%, 720px);
     height: auto;
     border-radius: 12px;
     margin-left: auto;
@@ -5499,8 +5515,86 @@ img, video, canvas, svg { max-width: 100%; height: auto; }
 /* ── 480px ── */
 @media (max-width: 480px) {
     .concrete-class-grid { grid-template-columns: repeat(2, 1fr); }
-    .cards-grid { grid-template-columns: 1fr; }
+
+    /* Карточки: 2 колонки даже на самых маленьких экранах */
+    .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
     .selection-ai-pair { padding-left: 12px; padding-right: 12px; }
+
+    /* Уменьшить внутренние отступы wizard */
+    .wizard-container {
+        padding: 14px 12px;
+        border-radius: 18px;
+    }
+
+    /* Мелкие точки прогресса — чтобы не перекрывались */
+    .wizard-progress .step-dot {
+        width: 28px;
+        height: 28px;
+        font-size: 0.72rem;
+    }
+
+    .wizard-progress {
+        margin-bottom: 22px;
+    }
+
+    /* Компактное содержимое карточек */
+    .card-content {
+        padding: 10px 8px;
+        border-radius: 10px;
+        gap: 2px;
+    }
+
+    .card-title {
+        font-size: 0.82rem;
+        line-height: 1.3;
+    }
+
+    .card-desc {
+        font-size: 0.71rem;
+        line-height: 1.25;
+    }
+
+    .step-title {
+        font-size: 1.1rem;
+    }
+
+    .step-description {
+        font-size: 0.85rem;
+    }
+
+    .category-title {
+        font-size: 0.73rem;
+        letter-spacing: 0.3px;
+        margin-bottom: 8px;
+    }
+
+    .category-group {
+        margin-bottom: 16px;
+    }
+
+    /* Компактные кнопки навигации */
+    .btn-wizard {
+        padding: 10px 14px;
+        font-size: 0.87rem;
+    }
+
+    .step-footer {
+        margin-top: 20px;
+        gap: 8px;
+    }
+
+    /* Результат подбора */
+    .rc-value {
+        font-size: 2rem;
+    }
+
+    .result-main {
+        padding: 16px 14px;
+    }
 }
 
 
