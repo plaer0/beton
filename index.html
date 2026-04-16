@@ -29,11 +29,11 @@
         <nav class="header-nav" id="mainNav">
             <div class="container">
                 <ul class="main-nav" role="list">
-                    <li><a href="#strength" class="nav-link" data-section="strength"><span class="nav-icon">📊</span>Классы прочности</a></li>
-                    <li><a href="#constructor" class="nav-link" data-section="constructor"><span class="nav-icon">🔧</span>Подбор</a></li>
-                    <li><a href="#application" class="nav-link" data-section="application"><span class="nav-icon">🏗️</span>Применение</a></li>
-                    <li><a href="#education" class="nav-link" data-section="education"><span class="nav-icon">📚</span>База знаний</a></li>
-                    <li><a href="#composition" class="nav-link" data-section="composition"><span class="nav-icon">⚗️</span>Состав</a></li>
+                    <li><a href="#strength" class="nav-link" data-section="strength">Классы прочности</a></li>
+                    <li><a href="#constructor" class="nav-link" data-section="constructor">Подбор</a></li>
+                    <li><a href="#application" class="nav-link" data-section="application">Применение</a></li>
+                    <li><a href="#education" class="nav-link" data-section="education">База знаний</a></li>
+                    <li><a href="#composition" class="nav-link" data-section="composition">Состав</a></li>
                 </ul>
                 <div class="nav-progress-bar" id="navProgressBar"></div>
             </div>
@@ -46,7 +46,7 @@
             <div class="hero-text">
                 <h1>БетонЭксперт</h1>
                 <p>Всё о бетоне: от состава до выбора класса для вашего проекта</p>
-                <a href="#education" class="hero-cta">Начать изучение →</a>
+                <a href="#education" class="hero-cta" data-anim="zoom-in" data-anim-delay="80">Начать изучение →</a>
             </div>
         </div>
     </div>
@@ -54,14 +54,15 @@
     <main class="main">
         <div class="container">
             <section class="intro" id="strength">
-                <h2>КЛАССЫ БЕТОНА И ИХ ХАРАКТЕРИСТИКИ</h2>
-                <p>Выберите класс бетона для просмотра подробной информации</p>
+                <h2 data-anim="fade-up">КЛАССЫ БЕТОНА И ИХ ХАРАКТЕРИСТИКИ</h2>
+                <p data-anim="fade-up" data-anim-delay="100">Выберите класс бетона для просмотра подробной информации</p>
             </section>
 
             <section class="table-section table-section--strength-pull">
                 <div class="strength-explorer">
-                    <div class="strength-explorer__classes">
+                    <div class="strength-explorer__classes" data-anim="fade-left">
                         <div class="concrete-class-grid" id="concreteClassGrid" role="list">
+                            <div class="pill-highlight" id="pillHighlight" aria-hidden="true"></div>
                             <button type="button" class="concrete-class-pill" role="listitem" data-class="B10" data-strength="9.8" data-mark="М150"><span class="concrete-class-pill__name">B10</span><span class="concrete-class-pill__meta">9.8–13.4 МПа</span></button>
                             <button type="button" class="concrete-class-pill" role="listitem" data-class="B12.5" data-strength="16.1" data-mark="М150"><span class="concrete-class-pill__name">B12.5</span><span class="concrete-class-pill__meta">16.1 МПа</span></button>
                             <button type="button" class="concrete-class-pill" role="listitem" data-class="B15" data-strength="19.6" data-mark="М200"><span class="concrete-class-pill__name">B15</span><span class="concrete-class-pill__meta">19.6–22.5 МПа</span></button>
@@ -80,7 +81,7 @@
                             <button type="button" class="concrete-class-pill" role="listitem" data-class="B70" data-strength="93.0" data-mark="М900"><span class="concrete-class-pill__name">B70</span><span class="concrete-class-pill__meta">93.0 МПа</span></button>
                         </div>
                     </div>
-                    <aside class="strength-detail" id="strengthDetailPanel" aria-label="Подробности по классу бетона">
+                    <aside class="strength-detail" id="strengthDetailPanel" aria-label="Подробности по классу бетона" data-anim="fade-right">
                         <div class="strength-detail-card">
                             <div class="panel-header panel-header--inline panel-header--compact">
                                 <h2 id="panelTitle">Класс бетона</h2>
@@ -94,17 +95,38 @@
                                         <div class="detail-item detail-item--compact detail-item--muted"><span class="detail-label">W / F</span><span class="detail-value detail-value--small"><span id="panelWaterproof">-</span> · <span id="panelFrost">-</span></span></div>
                                         <div class="detail-item detail-item--application"><span class="detail-label">Область применения</span><p class="detail-description" id="panelDescription">-</p></div>
                                     </div>
-                                    <div class="strength-detail-visual">
-                                        <div class="strength-model-slot">
-                                            <div class="strength-model-placeholder" id="strengthModelPlaceholder" aria-label="Демонстрационная модель">
-                                                <div class="strength-cube-scene">
-                                                    <div class="strength-cube" style="--cube: 7.25rem" aria-hidden="true">
-                                                        <div class="strength-cube-face strength-cube-face--front"></div>
-                                                        <div class="strength-cube-face strength-cube-face--back"></div>
-                                                        <div class="strength-cube-face strength-cube-face--right"></div>
-                                                        <div class="strength-cube-face strength-cube-face--left"></div>
-                                                        <div class="strength-cube-face strength-cube-face--top"></div>
-                                                        <div class="strength-cube-face strength-cube-face--bottom"></div>
+                                                                <div class="strength-detail-visual-wrap">
+                                        <div class="strength-detail-visual">
+                                            <div class="strength-model-slot">
+                                                <div class="strength-model-placeholder" id="strengthModelPlaceholder" aria-label="Демонстрационная модель">
+                                                    <div class="strength-cube-scene">
+                                                        <div class="strength-cube" style="--cube: 7.25rem" aria-hidden="true">
+                                                            <div class="strength-cube-face strength-cube-face--front"></div>
+                                                            <div class="strength-cube-face strength-cube-face--back"></div>
+                                                            <div class="strength-cube-face strength-cube-face--right"></div>
+                                                            <div class="strength-cube-face strength-cube-face--left"></div>
+                                                            <div class="strength-cube-face strength-cube-face--top"></div>
+                                                            <div class="strength-cube-face strength-cube-face--bottom"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="strength-test-slot">
+                                                <div class="test-section strength-detail-test" id="strengthDetailTest">
+                                                    <h3 class="strength-detail-test__title">Испытание прочности</h3>
+                                                    <button type="button" class="test-btn" id="testBtn">Протестировать прочность</button>
+                                                    <div class="test-visualization" id="testVisualization" style="display: none;">
+                                                        <div class="strength-display">
+                                                            <span class="strength-label">Текущая нагрузка</span>
+                                                            <span class="strength-value" id="currentStrength">0.0</span>
+                                                            <span class="strength-unit">МПа</span>
+                                                        </div>
+                                                        <div class="progress-container">
+                                                            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                                                            <div class="progress-labels"><span>0%</span><span id="progressPercent">0%</span><span id="maxStrength">100%</span></div>
+                                                        </div>
+                                                        <div class="test-result-message" id="testResultMessage"></div>
+                                                        <button type="button" class="reset-btn" id="resetBtn" style="display: none;">Сбросить</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -122,25 +144,6 @@
                                                 <p class="comparison-text-secondary" id="comparisonTextSecondary">Такая прочность позволяет бетонной плите толщиной 20 см выдержать собственный вес, умноженный примерно в 7 раз.</p>
                                             </div>
                                         </div>
-                                        <div class="strength-test-slot">
-                                            <div class="test-section strength-detail-test" id="strengthDetailTest">
-                                                <h3 class="strength-detail-test__title">Испытание прочности</h3>
-                                                <button type="button" class="test-btn" id="testBtn">Протестировать прочность</button>
-                                                <div class="test-visualization" id="testVisualization" style="display: none;">
-                                                    <div class="strength-display">
-                                                        <span class="strength-label">Текущая нагрузка</span>
-                                                        <span class="strength-value" id="currentStrength">0.0</span>
-                                                        <span class="strength-unit">МПа</span>
-                                                    </div>
-                                                    <div class="progress-container">
-                                                        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-                                                        <div class="progress-labels"><span>0%</span><span id="progressPercent">0%</span><span id="maxStrength">100%</span></div>
-                                                    </div>
-                                                    <div class="test-result-message" id="testResultMessage"></div>
-                                                    <button type="button" class="reset-btn" id="resetBtn" style="display: none;">Сбросить</button>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -155,10 +158,10 @@
         <section class="constructor-section" id="constructor">
             <div class="container">
                 <div class="constructor-header">
-                    <h2>ПРОФЕССИОНАЛЬНЫЙ ПОДБОР</h2>
-                    <p class="constructor-subtitle">Ответьте на 4 вопроса для точного анализа условий эксплуатации</p>
+                    <h2 data-anim="fade-up">ПРОФЕССИОНАЛЬНЫЙ ПОДБОР</h2>
+                    <p class="constructor-subtitle" data-anim="fade-up" data-anim-delay="120">Ответьте на 7 вопросов — получите точный класс бетона по ГОСТ</p>
                 </div>
-                <div class="wizard-container">
+                <div class="wizard-container" data-anim="fade-up" data-anim-delay="80">
                     <div class="wizard-progress">
                         <div class="progress-track"></div>
                         <div class="progress-indicator" id="progressIndicator"></div>
@@ -166,41 +169,56 @@
                         <div class="step-dot" data-step="2">2</div>
                         <div class="step-dot" data-step="3">3</div>
                         <div class="step-dot" data-step="4">4</div>
+                        <div class="step-dot" data-step="5">5</div>
+                        <div class="step-dot" data-step="6">6</div>
+                        <div class="step-dot" data-step="7">7</div>
                     </div>
                     <form id="wizardForm" class="wizard-form">
+
+                        <!-- ШАГ 1: Тип конструкции -->
                         <div class="wizard-step active" data-step="1">
                             <h3 class="step-title">Тип конструкции</h3>
                             <p class="step-description">Выберите тип конструкции, для которой подбирается бетон</p>
                             <div class="category-group">
                                 <div class="category-title">НЕНАГРУЖЕННЫЕ КОНСТРУКЦИИ</div>
                                 <div class="cards-grid">
-                                    <label class="selection-card"><input type="radio" name="type" value="floor_screed"><div class="card-content"><span class="card-title">Стяжки полов</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="prep_layers"><div class="card-content"><span class="card-title">Подготовительные слои</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="sidewalks"><div class="card-content"><span class="card-title">Тротуары</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="floor_screed"><div class="card-content"><span class="card-title">Стяжки полов</span><span class="card-desc">Выравнивающие и чистовые стяжки</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="prep_layers"><div class="card-content"><span class="card-title">Подготовительные слои</span><span class="card-desc">Подбетонка под фундамент</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="sidewalks"><div class="card-content"><span class="card-title">Тротуары и отмостки</span><span class="card-desc">Пешеходные дорожки, отмостки</span></div></label>
                                 </div>
                             </div>
                             <div class="category-group">
                                 <div class="category-title">МАЛОНАГРУЖЕННЫЕ КОНСТРУКЦИИ</div>
                                 <div class="cards-grid">
-                                    <label class="selection-card"><input type="radio" name="type" value="fence_foundation"><div class="card-content"><span class="card-title">Фундаменты под заборы</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="garden_paths"><div class="card-content"><span class="card-title">Садовые дорожки</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="small_outbuildings"><div class="card-content"><span class="card-title">Небольшие хозпостройки</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="fence_foundation"><div class="card-content"><span class="card-title">Фундаменты под заборы</span><span class="card-desc">Столбчатые и ленточные под ограждения</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="garden_paths"><div class="card-content"><span class="card-title">Садовые дорожки</span><span class="card-desc">Декоративные покрытия участка</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="small_outbuildings"><div class="card-content"><span class="card-title">Хозпостройки</span><span class="card-desc">Сараи, беседки, навесы</span></div></label>
                                 </div>
                             </div>
                             <div class="category-group">
                                 <div class="category-title">ФУНДАМЕНТЫ</div>
                                 <div class="cards-grid">
-                                    <label class="selection-card"><input type="radio" name="type" value="foundation" checked><div class="card-content"><span class="card-title">Ленточный (малоэтажный дом)</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="slab_foundation"><div class="card-content"><span class="card-title">Плитный (дом, гараж)</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="pile_foundation"><div class="card-content"><span class="card-title">Свайно-ростверковый</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="basement"><div class="card-content"><span class="card-title">Цокольные этажи, подвалы</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="foundation" checked><div class="card-content"><span class="card-title">Ленточный</span><span class="card-desc">Малоэтажный дом, коттедж</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="slab_foundation"><div class="card-content"><span class="card-title">Плитный</span><span class="card-desc">Монолитная плита, гараж</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="pile_foundation"><div class="card-content"><span class="card-title">Свайно-ростверковый</span><span class="card-desc">Сложные грунты, просадочные почвы</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="basement"><div class="card-content"><span class="card-title">Цоколь / Подвал</span><span class="card-desc">Заглублённые помещения</span></div></label>
                                 </div>
                             </div>
                             <div class="category-group">
-                                <div class="category-title">СТЕНЫ</div>
+                                <div class="category-title">СТЕНЫ И ПЕРЕКРЫТИЯ</div>
                                 <div class="cards-grid">
-                                    <label class="selection-card"><input type="radio" name="type" value="wall"><div class="card-content"><span class="card-title">Несущие (многоэтажные)</span></div></label>
-                                    <label class="selection-card"><input type="radio" name="type" value="self_supporting_walls"><div class="card-content"><span class="card-title">Самонесущие</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="wall"><div class="card-content"><span class="card-title">Несущие стены</span><span class="card-desc">Многоэтажные здания</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="self_supporting_walls"><div class="card-content"><span class="card-title">Самонесущие стены</span><span class="card-desc">Ненесущие перегородки</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="floor_slab"><div class="card-content"><span class="card-title">Перекрытия</span><span class="card-desc">Межэтажные монолитные плиты</span></div></label>
+                                </div>
+                            </div>
+                            <div class="category-group">
+                                <div class="category-title">СПЕЦИАЛЬНЫЕ КОНСТРУКЦИИ</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="type" value="pool"><div class="card-content"><span class="card-title">Бассейны / Резервуары</span><span class="card-desc">Постоянный контакт с водой</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="road_slab"><div class="card-content"><span class="card-title">Дорожные плиты</span><span class="card-desc">Промышленные проезды, стоянки</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="column"><div class="card-content"><span class="card-title">Колонны / Опоры</span><span class="card-desc">Несущие вертикальные элементы</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="type" value="bridge"><div class="card-content"><span class="card-title">Мосты / Эстакады</span><span class="card-desc">Транспортные сооружения</span></div></label>
                                 </div>
                             </div>
                             <div class="step-footer right">
@@ -208,12 +226,15 @@
                             </div>
                         </div>
 
+                        <!-- ШАГ 2: Нагрузки -->
                         <div class="wizard-step" data-step="2">
-                            <h3 class="step-title">Какая планируется нагрузка?</h3>
+                            <h3 class="step-title">Характер нагрузок</h3>
+                            <p class="step-description">Какие нагрузки будет воспринимать конструкция?</p>
                             <div class="cards-grid">
-                                <label class="selection-card"><input type="radio" name="load" value="light" checked><div class="card-content"><span class="card-icon">🚶</span><span class="card-title">Лёгкая / 1 этаж</span><span class="card-desc">Каркасный дом, баня, пешеходы, беседка</span></div></label>
-                                <label class="selection-card"><input type="radio" name="load" value="medium"><div class="card-content"><span class="card-icon">🚗</span><span class="card-title">Средняя / 2 этажа</span><span class="card-desc">Дом из газоблока/бруса, легковое авто</span></div></label>
-                                <label class="selection-card"><input type="radio" name="load" value="heavy"><div class="card-content"><span class="card-icon">🚛</span><span class="card-title">Высокая / 3+ этажа</span><span class="card-desc">Тяжелый кирпичный дом, грузовая техника</span></div></label>
+                                <label class="selection-card"><input type="radio" name="load" value="light" checked><div class="card-content"><span class="card-title">Лёгкая / 1 этаж</span><span class="card-desc">Каркасный дом, баня, беседка, пешеходы</span></div></label>
+                                <label class="selection-card"><input type="radio" name="load" value="medium"><div class="card-content"><span class="card-title">Средняя / 2–3 этажа</span><span class="card-desc">Дом из газоблока или бруса, легковой авто</span></div></label>
+                                <label class="selection-card"><input type="radio" name="load" value="heavy"><div class="card-content"><span class="card-title">Высокая / 4+ этажа</span><span class="card-desc">Тяжёлый кирпичный дом, грузовая техника</span></div></label>
+                                <label class="selection-card"><input type="radio" name="load" value="dynamic"><div class="card-content"><span class="card-title">Динамические / Вибрация</span><span class="card-desc">Промышленное оборудование, транспортные нагрузки</span></div></label>
                             </div>
                             <div class="step-footer">
                                 <button type="button" class="btn-wizard btn-prev">← Назад</button>
@@ -221,12 +242,16 @@
                             </div>
                         </div>
 
+                        <!-- ШАГ 3: Этажность -->
                         <div class="wizard-step" data-step="3">
-                            <h3 class="step-title">Условия на участке (Грунт)</h3>
+                            <h3 class="step-title">Этажность здания</h3>
+                            <p class="step-description">Сколько этажей планируется в здании?</p>
                             <div class="cards-grid">
-                                <label class="selection-card"><input type="radio" name="soil" value="sand" checked><div class="card-content"><span class="card-icon">🏜️</span><span class="card-title">Сухой / Песок</span><span class="card-desc">Низкий уровень вод, хорошая дренажность</span></div></label>
-                                <label class="selection-card"><input type="radio" name="soil" value="clay"><div class="card-content"><span class="card-icon">🧱</span><span class="card-title">Глина / Суглинок</span><span class="card-desc">Пучинистый грунт, задерживает влагу</span></div></label>
-                                <label class="selection-card"><input type="radio" name="soil" value="water"><div class="card-content"><span class="card-icon">💧</span><span class="card-title">Высокие воды</span><span class="card-desc">Болотистая местность, вода близко к поверхности</span></div></label>
+                                <label class="selection-card"><input type="radio" name="floors" value="1" checked><div class="card-content"><span class="card-title">1 этаж</span><span class="card-desc">Частный дом, дача, гараж</span></div></label>
+                                <label class="selection-card"><input type="radio" name="floors" value="2"><div class="card-content"><span class="card-title">2–3 этажа</span><span class="card-desc">Коттедж, таунхаус</span></div></label>
+                                <label class="selection-card"><input type="radio" name="floors" value="5"><div class="card-content"><span class="card-title">4–9 этажей</span><span class="card-desc">Малоэтажное многоквартирное</span></div></label>
+                                <label class="selection-card"><input type="radio" name="floors" value="16"><div class="card-content"><span class="card-title">10–16 этажей</span><span class="card-desc">Многоэтажный жилой дом</span></div></label>
+                                <label class="selection-card"><input type="radio" name="floors" value="25"><div class="card-content"><span class="card-title">Свыше 16 этажей</span><span class="card-desc">Высотное здание, небоскрёб</span></div></label>
                             </div>
                             <div class="step-footer">
                                 <button type="button" class="btn-wizard btn-prev">← Назад</button>
@@ -234,18 +259,103 @@
                             </div>
                         </div>
 
+                        <!-- ШАГ 4: Грунт и грунтовые воды -->
                         <div class="wizard-step" data-step="4">
-                            <h3 class="step-title">Когда планируете заливку?</h3>
+                            <h3 class="step-title">Грунт и грунтовые воды</h3>
+                            <p class="step-description">Укажите тип грунта и уровень грунтовых вод</p>
+                            <div class="category-group">
+                                <div class="category-title">ТИП ГРУНТА</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="soil" value="sand" checked><div class="card-content"><span class="card-title">Сухой / Песок</span><span class="card-desc">Хорошая дренажность, непучинистый</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="soil" value="clay"><div class="card-content"><span class="card-title">Глина / Суглинок</span><span class="card-desc">Пучинистый, задерживает влагу</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="soil" value="peat"><div class="card-content"><span class="card-title">Торф / Слабый грунт</span><span class="card-desc">Высокая осадка, требует усиления</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="soil" value="rock"><div class="card-content"><span class="card-title">Скальный</span><span class="card-desc">Прочный, непучинистый, стабильный</span></div></label>
+                                </div>
+                            </div>
+                            <div class="category-group">
+                                <div class="category-title">УРОВЕНЬ ГРУНТОВЫХ ВОД</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="water" value="low" checked><div class="card-content"><span class="card-title">Низкий (глубже 2 м)</span><span class="card-desc">Вода далеко, нет риска подтопления</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="water" value="medium"><div class="card-content"><span class="card-title">Средний (1–2 м)</span><span class="card-desc">Сезонное повышение уровня воды</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="water" value="high"><div class="card-content"><span class="card-title">Высокий (менее 1 м)</span><span class="card-desc">Постоянная угроза подтопления</span></div></label>
+                                </div>
+                            </div>
+                            <div class="step-footer">
+                                <button type="button" class="btn-wizard btn-prev">← Назад</button>
+                                <button type="button" class="btn-wizard btn-next">Далее →</button>
+                            </div>
+                        </div>
+
+                        <!-- ШАГ 5: Влажность и среда -->
+                        <div class="wizard-step" data-step="5">
+                            <h3 class="step-title">Условия эксплуатации</h3>
+                            <p class="step-description">В каких условиях будет находиться конструкция?</p>
                             <div class="cards-grid">
-                                <label class="selection-card"><input type="radio" name="season" value="summer" checked><div class="card-content"><span class="card-icon">☀️</span><span class="card-title">Лето (+5°...+25°)</span><span class="card-desc">Идеальные условия для набора прочности</span></div></label>
-                                <label class="selection-card"><input type="radio" name="season" value="winter"><div class="card-content"><span class="card-icon">❄️</span><span class="card-title">Зима / Заморозки</span><span class="card-desc">Температура опускается ниже +5°C</span></div></label>
-                                <label class="selection-card"><input type="radio" name="season" value="hot"><div class="card-content"><span class="card-icon">🔥</span><span class="card-title">Жара (&gt;+30°)</span><span class="card-desc">Интенсивное солнце, быстрое высыхание</span></div></label>
+                                <label class="selection-card"><input type="radio" name="moisture" value="dry" checked><div class="card-content"><span class="card-title">Сухие условия</span><span class="card-desc">Отапливаемое помещение, нет контакта с водой</span></div></label>
+                                <label class="selection-card"><input type="radio" name="moisture" value="humid"><div class="card-content"><span class="card-title">Влажные условия</span><span class="card-desc">Подвал, сырые помещения, частая сырость</span></div></label>
+                                <label class="selection-card"><input type="radio" name="moisture" value="outdoor"><div class="card-content"><span class="card-title">Открытый воздух</span><span class="card-desc">Атмосферные осадки, переменная влажность</span></div></label>
+                                <label class="selection-card"><input type="radio" name="moisture" value="constant_water"><div class="card-content"><span class="card-title">Постоянный контакт с водой</span><span class="card-desc">Бассейн, резервуар, причал</span></div></label>
+                                <label class="selection-card"><input type="radio" name="moisture" value="aggressive_water"><div class="card-content"><span class="card-title">Агрессивная среда</span><span class="card-desc">Морская вода, химические производства</span></div></label>
+                            </div>
+                            <div class="step-footer">
+                                <button type="button" class="btn-wizard btn-prev">← Назад</button>
+                                <button type="button" class="btn-wizard btn-next">Далее →</button>
+                            </div>
+                        </div>
+
+                        <!-- ШАГ 6: Температура и сезон -->
+                        <div class="wizard-step" data-step="6">
+                            <h3 class="step-title">Климат и срок заливки</h3>
+                            <p class="step-description">Укажите климатическую зону и время заливки</p>
+                            <div class="category-group">
+                                <div class="category-title">КЛИМАТИЧЕСКАЯ ЗОНА</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="tempzone" value="moderate" checked><div class="card-content"><span class="card-title">Умеренный климат</span><span class="card-desc">Средняя полоса, зима до −20°C</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="tempzone" value="cold"><div class="card-content"><span class="card-title">Суровый климат</span><span class="card-desc">Зима ниже −30°C, Сибирь, Север</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="tempzone" value="hot"><div class="card-content"><span class="card-title">Жаркий климат</span><span class="card-desc">Юг России, летом выше +35°C</span></div></label>
+                                </div>
+                            </div>
+                            <div class="category-group">
+                                <div class="category-title">ВРЕМЯ ЗАЛИВКИ</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="season" value="summer" checked><div class="card-content"><span class="card-title">Лето (+5°...+30°)</span><span class="card-desc">Оптимальные условия набора прочности</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="season" value="winter"><div class="card-content"><span class="card-title">Зима / Заморозки</span><span class="card-desc">Температура ниже +5°C</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="season" value="hot"><div class="card-content"><span class="card-title">Жара (выше +30°)</span><span class="card-desc">Риск быстрого высыхания и трещин</span></div></label>
+                                </div>
+                            </div>
+                            <div class="step-footer">
+                                <button type="button" class="btn-wizard btn-prev">← Назад</button>
+                                <button type="button" class="btn-wizard btn-next">Далее →</button>
+                            </div>
+                        </div>
+
+                        <!-- ШАГ 7: Армирование и геометрия -->
+                        <div class="wizard-step" data-step="7">
+                            <h3 class="step-title">Армирование и размеры</h3>
+                            <p class="step-description">Последний шаг — уточните армирование и толщину элемента</p>
+                            <div class="category-group">
+                                <div class="category-title">АРМИРОВАНИЕ</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="reinforcement" value="none" checked><div class="card-content"><span class="card-title">Без армирования</span><span class="card-desc">Бетон без стальных стержней</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="reinforcement" value="standard"><div class="card-content"><span class="card-title">Стандартное</span><span class="card-desc">Обычная стальная арматура</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="reinforcement" value="heavy"><div class="card-content"><span class="card-title">Усиленное</span><span class="card-desc">Сложные сетки, каркасы</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="reinforcement" value="prestressed"><div class="card-content"><span class="card-title">Предварительно напряжённое</span><span class="card-desc">Мин. класс B30 по нормам</span></div></label>
+                                </div>
+                            </div>
+                            <div class="category-group">
+                                <div class="category-title">ТОЛЩИНА ЭЛЕМЕНТА</div>
+                                <div class="cards-grid">
+                                    <label class="selection-card"><input type="radio" name="thickness" value="thin" checked><div class="card-content"><span class="card-title">Тонкостенный (до 150 мм)</span><span class="card-desc">Плиты, тонкие стены, стяжки</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="thickness" value="medium"><div class="card-content"><span class="card-title">Стандартный (150–500 мм)</span><span class="card-desc">Большинство конструкций</span></div></label>
+                                    <label class="selection-card"><input type="radio" name="thickness" value="massive"><div class="card-content"><span class="card-title">Массивный (более 500 мм)</span><span class="card-desc">Фундаментные плиты, дамбы</span></div></label>
+                                </div>
                             </div>
                             <div class="step-footer">
                                 <button type="button" class="btn-wizard btn-prev">← Назад</button>
                                 <button type="button" class="btn-wizard btn-calculate">Рассчитать</button>
                             </div>
                         </div>
+
                     </form>
 
                     <div id="wizardResult" class="wizard-result" style="display:none;">
@@ -257,25 +367,34 @@
                                 <span class="rc-mark" id="resMark">M350</span>
                             </div>
                             <div class="result-divider"></div>
-                            <div class="result-text-block">
-                                <p id="resText">Здесь будет описание...</p>
+                            <div class="result-details" id="resDetails">
+                                <div class="result-characteristics">
+                                    <div class="result-char-item"><span class="rci-label">Водонепроницаемость</span><span class="rci-value" id="resWater">—</span></div>
+                                    <div class="result-char-item"><span class="rci-label">Морозостойкость</span><span class="rci-value" id="resFrost">—</span></div>
+                                    <div class="result-char-item"><span class="rci-label">Марка</span><span class="rci-value" id="resMark2">—</span></div>
+                                </div>
                             </div>
+                            <div class="result-text-block">
+                                <p id="resText"></p>
+                            </div>
+                            <div id="resNotes" class="result-special-notes" style="display:none;"></div>
                         </div>
                         <button type="button" class="btn-restart" id="btnRestart">Подобрать ещё раз</button>
                     </div>
                 </div>
             </div>
         </section>
+        </section>
         </div>
 
         <section class="lab-polygone-section" id="polygone" aria-labelledby="labPolygoneTitle">
             <div class="container">
                 <header class="lab-polygone-header">
-                    <h2 class="lab-polygone-title" id="labPolygoneTitle">Испытательный полигон: визуализация под нагрузкой</h2>
-                    <p class="lab-polygone-lead">Выбери класс, задай нагрузку — нейросеть покажет последствия</p>
+                    <h2 class="lab-polygone-title" id="labPolygoneTitle" data-anim="fade-up">Испытательный полигон: визуализация под нагрузкой</h2>
+                    <p class="lab-polygone-lead" data-anim="fade-up" data-anim-delay="100">Выбери класс, задай нагрузку — нейросеть покажет последствия</p>
                 </header>
                 <div class="lab-polygone-grid" id="labPolygoneGrid">
-                    <div class="lab-polygone-col lab-polygone-col--visual">
+                    <div class="lab-polygone-col lab-polygone-col--visual" data-anim="fade-left">
                         <section class="ai-destruction-section" id="aiDestruction">
                             <div class="ai-destruction-card">
                     <div class="ai-meta">
@@ -346,7 +465,7 @@
                             </div>
                         </section>
                     </div>
-                    <div class="lab-polygone-col lab-polygone-col--chat">
+                    <div class="lab-polygone-col lab-polygone-col--chat" data-anim="fade-right">
                         <div class="ai-assistant-card">
                             <h3 class="ai-assistant-title">ИИ-ассистент</h3>
                             <p class="ai-assistant-lead">Спросите о классах бетона, прочности, уходе за монолитом и подборе марки — кратко и по делу.</p>
@@ -367,9 +486,9 @@
         <!-- ПРИМЕНЕНИЕ -->
         <section class="carousel-section" id="application">
             <div class="container">
-                <h2>БЕТОН И ЕГО ПРИМЕНЕНИЕ</h2>
+                <h2 data-anim="fade-up">БЕТОН И ЕГО ПРИМЕНЕНИЕ</h2>
             </div>
-            <button type="button" class="map-toggle-btn" id="mapToggleBtn" aria-expanded="false" aria-controls="mapSection">КЛАССЫ БЕТОНА НА КАРТЕ</button>
+            <button type="button" class="map-toggle-btn" id="mapToggleBtn" aria-expanded="false" aria-controls="mapSection" data-anim="zoom-in">КЛАССЫ БЕТОНА НА КАРТЕ</button>
             <div class="map-cursor-zone" id="mapCursorZone">
                 <section class="map-section" id="mapSection" aria-hidden="true">
                     <div class="map-section-inner">
@@ -382,7 +501,7 @@
                     </div>
                 </section>
             </div>
-            <div class="carousel-container">
+            <div class="carousel-container" data-anim="fade-up" data-anim-delay="80">
                 <button class="carousel-btn carousel-btn-prev" id="carouselPrev" aria-label="Предыдущий слайд">‹</button>
                 <button class="carousel-btn carousel-btn-next" id="carouselNext" aria-label="Следующий слайд">›</button>
                 <div class="carousel-wrapper">
@@ -403,14 +522,14 @@
         <section class="education-section" id="education">
             <div class="container">
                 <div class="education-header">
-                    <div class="education-header-label">База знаний</div>
-                    <h2>КАК ВЫБРАТЬ БЕТОН?</h2>
-                    <p>Руководство для тех, кто строит впервые — и для специалистов</p>
+                    <div class="education-header-label" data-anim="fade-up">База знаний</div>
+                    <h2 data-anim="fade-up" data-anim-delay="80">КАК ВЫБРАТЬ БЕТОН?</h2>
+                    <p data-anim="fade-up" data-anim-delay="160">Руководство для тех, кто строит впервые — и для специалистов</p>
                 </div>
 
                 <div class="edu-grid">
 
-                    <article class="edu-card edu-card--wide" data-reveal>
+                    <article class="edu-card edu-card--wide" data-anim="fade-left">
                         <div class="edu-card-tag">Основы</div>
                         <h3>Что такое класс и марка бетона?</h3>
                         <p class="edu-card-lead">Класс и марка — это два способа описать одно и то же свойство: прочность бетона на сжатие. Понимание разницы поможет избежать ошибок при заказе.</p>
@@ -435,7 +554,7 @@
                         <a href="https://beaton.ru/articles/" target="_blank" rel="noopener" class="edu-card-link">Подробнее на Beaton.ru →</a>
                     </article>
 
-                    <article class="edu-card" data-reveal>
+                    <article class="edu-card" data-anim="fade-right">
                         <div class="edu-card-tag">Для начинающих</div>
                         <h3>Три главных правила выбора бетона</h3>
                         <div class="edu-rules">
@@ -463,7 +582,7 @@
                         </div>
                     </article>
 
-                    <article class="edu-card" data-reveal>
+                    <article class="edu-card" data-anim="fade-left">
                         <div class="edu-card-tag">Шпаргалка</div>
                         <h3>Что заказать для дачи или дома</h3>
                         <div class="edu-cheatsheet">
@@ -478,7 +597,7 @@
                         <a href="https://beaton.ru/articles/" target="_blank" rel="noopener" class="edu-card-link">Статьи о выборе бетона →</a>
                     </article>
 
-                    <article class="edu-card edu-card--pro" data-reveal>
+                    <article class="edu-card edu-card--pro" data-anim="fade-right">
                         <div class="edu-card-tag edu-card-tag--pro">Для специалистов</div>
                         <h3>Дополнительные характеристики: W, F, П</h3>
                         <p class="edu-card-lead">Класс прочности — лишь одна из характеристик. Для ответственных объектов важны ещё три параметра.</p>
@@ -508,7 +627,7 @@
                         <a href="https://beaton.ru/articles/" target="_blank" rel="noopener" class="edu-card-link">Подробнее о характеристиках →</a>
                     </article>
 
-                    <article class="edu-card edu-card--warn" data-reveal>
+                    <article class="edu-card edu-card--warn" data-anim="fade-up">
                         <div class="edu-card-tag edu-card-tag--warn">⚠️ Важно знать</div>
                         <h3>5 частых ошибок при работе с бетоном</h3>
                         <div class="edu-mistakes">
@@ -520,7 +639,7 @@
                         </div>
                     </article>
 
-                    <article class="edu-card" data-reveal>
+                    <article class="edu-card" data-anim="fade-left">
                         <div class="edu-card-tag">Технология</div>
                         <h3>Как бетон набирает прочность</h3>
                         <p class="edu-card-lead">Твердение — это не высыхание, а химическая реакция. Понимание этого процесса поможет избежать досадных ошибок на стройке.</p>
@@ -545,7 +664,7 @@
         <section class="comparator-section" id="comparator">
             <div class="container">
                 <div class="comparator-layout">
-                    <article class="comparator-panel comparator-panel--unified">
+                    <article class="comparator-panel comparator-panel--unified" data-anim="fade-up">
                         <div class="comparator-header">
                             <h2>КОМПАРАТОР С ВИЗУАЛИЗАЦИЕЙ ДАННЫХ</h2>
                             <p>Выберите класс бетона и посмотрите сравнение прочности в реальных эквивалентах, включая глубину погружения в воде.</p>
@@ -601,7 +720,7 @@
                                         />
                                         <button type="submit" id="comparatorCustomSend" class="comparator-custom-btn">Сравнить</button>
                                     </form>
-                                    <p class="comparator-custom-result" id="comparatorCustomResult"></p>
+                                    <div class="comparator-custom-result" id="comparatorCustomResult"></div>
                                 </div>
                             </div>
 
@@ -620,35 +739,35 @@
         <!-- СОСТАВ БЕТОНА -->
         <section class="composition-section" id="composition">
             <div class="container">
-                <h2>СОСТАВ БЕТОНА</h2>
+                <h2 data-anim="fade-up">СОСТАВ БЕТОНА</h2>
             </div>
             <div class="composition-image-wrapper">
                 <div class="composition-collage" id="compositionCollage" aria-label="Фотографии состава бетона">
-                    <figure class="composition-collage-item"><img src="pics/material1.jpg" alt="Цемент" loading="lazy" /></figure>
-                    <figure class="composition-collage-item"><img src="pics/material2.jpg" alt="Щебень" loading="lazy" /></figure>
-                    <figure class="composition-collage-item"><img src="pics/material3.jpg" alt="Песок" loading="lazy" /></figure>
-                    <figure class="composition-collage-item"><img src="pics/material4.jpg" alt="Вода" loading="lazy" /></figure>
-                    <figure class="composition-collage-item"><img src="pics/material5.jpg" alt="Добавки" loading="lazy" /></figure>
+                    <figure class="composition-collage-item" data-anim="fade-up" data-anim-delay="0"><img src="pics/material1.jpg" alt="Цемент" loading="lazy" /></figure>
+                    <figure class="composition-collage-item" data-anim="fade-up" data-anim-delay="80"><img src="pics/material2.jpg" alt="Щебень" loading="lazy" /></figure>
+                    <figure class="composition-collage-item" data-anim="fade-up" data-anim-delay="160"><img src="pics/material3.jpg" alt="Песок" loading="lazy" /></figure>
+                    <figure class="composition-collage-item" data-anim="fade-up" data-anim-delay="240"><img src="pics/material4.jpg" alt="Вода" loading="lazy" /></figure>
+                    <figure class="composition-collage-item" data-anim="fade-up" data-anim-delay="320"><img src="pics/material5.jpg" alt="Добавки" loading="lazy" /></figure>
                 </div>
             </div>
             <div class="composition-grid-wrapper">
                 <div class="composition-grid" id="compositionGrid">
-                    <article class="composition-card" data-seq="1">
+                    <article class="composition-card" data-anim="fade-right" data-anim-delay="0" data-seq="1">
                         <h3 class="composition-card-title">ЦЕМЕНТ</h3>
                         <div class="composition-card-rule"></div>
                         <p class="composition-card-text">Цемент скрепляет песок и щебень в единую массу. При контакте с водой он вступает в химическую реакцию и твердеет, образуя прочную каменную структуру. От качества связующего элемента напрямую зависит итоговая прочность бетона.<br><br>Для большинства частных работ используют портландцемент марок М400 или М500. Материал должен быть максимально свежим, так как быстро впитывает влагу из воздуха и теряет активность.</p>
                     </article>
-                    <article class="composition-card" data-seq="3">
+                    <article class="composition-card" data-anim="fade-left" data-anim-delay="120" data-seq="3">
                         <h3 class="composition-card-title">ПЕСОК</h3>
                         <div class="composition-card-rule"></div>
                         <p class="composition-card-text">Песок заполняет пространство между щебнем и цементом, за счет чего бетонный раствор становится плотным и однородным. Лучше всего подходит просеянный речной или карьерный песок без глины, ила и других органических примесей.<br><br>Лучше всего подходит средняя фракция (от 2 до 2,5 мм). Частая ошибка — не учитывать влажность песка.</p>
                     </article>
-                    <article class="composition-card" data-seq="2">
+                    <article class="composition-card" data-anim="fade-right" data-anim-delay="240" data-seq="2">
                         <h3 class="composition-card-title">ЩЕБЕНЬ ИЛИ ГРАВИЙ</h3>
                         <div class="composition-card-rule"></div>
                         <p class="composition-card-text">Щебень занимает практически весь объем раствора. Это основной несущий компонент бетона, который принимает на себя нагрузку и обеспечивает долговечность конструкции. Гравий тоже допустим, но сцепление с цементом у него хуже из-за гладкой поверхности.<br><br>В частном строительстве чаще всего используют щебень фракции 5–20 мм, обязательно чистый, без пыли и земли.</p>
                     </article>
-                    <article class="composition-card" data-seq="4">
+                    <article class="composition-card" data-anim="fade-left" data-anim-delay="360" data-seq="4">
                         <h3 class="composition-card-title">ВОДА И ДОБАВКИ</h3>
                         <div class="composition-card-rule"></div>
                         <p class="composition-card-text">Жидкость запускает процесс твердения цемента и делает смесь пластичной. Используют чистую воду без масел, солей и органических примесей — подойдет обычная водопроводная.<br><br>Чтобы изменить свойства смеси под конкретную задачу используют добавки для бетона: пластификаторы, ускорители твердения, замедлители твердения, антифризы, гидрофобизаторы, красители, фиброволокно.</p>
@@ -657,27 +776,19 @@
             </div>
         </section>
 
-        <div class="section-divider section-divider--blue section-divider--inset"></div>
+        <div class="section-divider section-divider--blue section-divider--inset" data-anim="zoom-in"></div>
     </main>
-
-    <section class="cta-beaton" id="orderConcrete" aria-labelledby="ctaBeatonTitle">
-        <div class="container cta-beaton__inner">
-            <h2 class="cta-beaton__title" id="ctaBeatonTitle">Закажи бетон прямо сейчас</h2>
-            <p class="cta-beaton__lead">Качественный товарный бетон для фундаментов, монолита и инженерных задач можно заказать у группы компаний «Беатон» — производство, лаборатория и поставка в Санкт-Петербурге и Ленинградской области.</p>
-            <a href="https://beatongroup.ru" class="cta-beaton__btn" target="_blank" rel="noopener noreferrer">Заказать</a>
-        </div>
-    </section>
 
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-brand">
+                <div class="footer-brand" data-anim="fade-up" data-anim-delay="0">
                     <img class="footer-logo logo-img--light" src="pics/logo_.png" alt="БетонЭксперт" />
                     <img class="footer-logo logo-img--dark" src="pics/logo_.png" alt="БетонЭксперт" />
                     <p>Образовательный ресурс о бетоне для частных застройщиков и специалистов отрасли</p>
                 </div>
-                <nav class="footer-nav" aria-label="Навигация по сайту">
+                <nav class="footer-nav" data-anim="fade-up" data-anim-delay="100" aria-label="Навигация по сайту">
                     <h4>Разделы</h4>
                     <ul>
                         <li><a href="#strength">Классы прочности</a></li>
@@ -687,7 +798,7 @@
                         <li><a href="#composition">Состав бетона</a></li>
                     </ul>
                 </nav>
-                <div class="footer-sources">
+                <div class="footer-sources" data-anim="fade-up" data-anim-delay="200">
                     <h4>Материалы</h4>
                     <ul>
                         <li><a href="https://beaton.ru/" target="_blank" rel="noopener">Beaton.ru — производитель</a></li>
@@ -695,8 +806,15 @@
                         <li><a href="https://beaton.ru/articles/vybor-betona-dlya-fundamenta/" target="_blank" rel="noopener">Выбор бетона для фундамента</a></li>
                     </ul>
                 </div>
+                <div class="footer-partners" data-anim="fade-up" data-anim-delay="300">
+                    <h4>Партнеры</h4>
+                    <ul>
+                        <li><a href="https://cev-k.kalin.gov.spb.ru/" target="_blank" rel="noopener noreferrer">Кванториум Калининского района Санкт-Петербурга</a></li>
+                        <li><a href="https://beaton.ru/" target="_blank" rel="noopener noreferrer">Компания «Беатон»</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="footer-bottom">
+            <div class="footer-bottom" data-anim="fade-up" data-anim-delay="400">
                 <p>Информация носит образовательный характер. Проектные решения принимайте совместно с квалифицированным инженером.</p>
             </div>
         </div>

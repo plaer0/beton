@@ -1,25 +1,48 @@
-// скролл
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
+// скролл — плавный, с учётом хедера
+(function () {
+    var header = document.getElementById('siteHeader');
+    function headerH() { return header ? header.offsetHeight : 0; }
+    function updateVar() {
+        document.documentElement.style.setProperty('--header-h', headerH() + 'px');
+    }
+    updateVar();
+    window.addEventListener('resize', updateVar);
 
-        if (targetId === '#top' || targetId === '#') {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        } else {
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+    function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+
+    function scrollTo(href) {
+        var y;
+        if (href === '#top' || href === '#') { y = 0; }
+        else {
+            var el = document.querySelector(href);
+            if (!el) return;
+            y = el.getBoundingClientRect().top + window.scrollY - headerH() - 14;
         }
+        var from = window.scrollY, dist = y - from;
+        if (Math.abs(dist) < 2) return;
+        var dur = Math.min(Math.max(Math.abs(dist) * 0.45, 420), 950), t0 = null;
+        function frame(ts) {
+            if (!t0) t0 = ts;
+            var p = Math.min((ts - t0) / dur, 1);
+            window.scrollTo(0, from + dist * ease(p));
+            if (p < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+            e.preventDefault();
+            var nav = document.getElementById('mainNav');
+            var tog = document.getElementById('mobileNavToggle');
+            if (nav && nav.classList.contains('nav-open')) {
+                nav.classList.remove('nav-open');
+                if (tog) { tog.classList.remove('open'); tog.setAttribute('aria-expanded','false'); }
+            }
+            scrollTo(this.getAttribute('href'));
+        });
     });
-});
+})();
 
 // тема
 const themeToggle = document.getElementById('themeToggle');
@@ -459,10 +482,80 @@ function setConcreteClass(className, strengthValue) {
         pill.classList.toggle('is-selected', pill.getAttribute('data-class') === className);
     });
 
+    // Двигаем скользящую рамку
+    if (typeof window.movePillHighlight === 'function') {
+        window.movePillHighlight(className);
+    }
+
     syncAiDestructionModule();
 }
 
 window.setConcreteClass = setConcreteClass;
+
+/* ─────────────────────────────────────────────────────
+   Скользящая рамка для грида пиллов
+   ───────────────────────────────────────────────────── */
+(function () {
+    var hl   = null;
+    var grid = null;
+
+    function positionHighlight(className, animate) {
+        if (!hl || !grid) return;
+        var pill = grid.querySelector('.concrete-class-pill[data-class="' + className + '"]');
+        if (!pill) return;
+
+        var gr = grid.getBoundingClientRect();
+        var pr = pill.getBoundingClientRect();
+
+        if (!animate) {
+            hl.style.transition = 'none';
+        }
+
+        hl.style.width     = pr.width  + 'px';
+        hl.style.height    = pr.height + 'px';
+        hl.style.transform = 'translate(' + (pr.left - gr.left) + 'px, ' + (pr.top - gr.top + grid.scrollTop) + 'px)';
+
+        if (!animate) {
+            hl.offsetWidth; // force reflow
+            hl.style.transition = '';
+        }
+
+        hl.classList.add('is-ready');
+    }
+
+    window.movePillHighlight = function (className) {
+        requestAnimationFrame(function () {
+            positionHighlight(className, true);
+        });
+    };
+
+    function init() {
+        hl   = document.getElementById('pillHighlight');
+        grid = document.getElementById('concreteClassGrid');
+        if (!hl || !grid) return;
+
+        var selected = grid.querySelector('.concrete-class-pill.is-selected');
+        if (!selected) return;
+
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                positionHighlight(selected.getAttribute('data-class'), false);
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    window.addEventListener('resize', function () {
+        if (!grid) return;
+        var sel = grid.querySelector('.concrete-class-pill.is-selected');
+        if (sel) positionHighlight(sel.getAttribute('data-class'), false);
+    }, { passive: true });
+})();
 
 function selectConcreteClass(className, strengthValue) {
     if (!className) return;
@@ -1684,7 +1777,7 @@ function initializeComparatorModule() {
         waterDepthTarget = Math.min(strength / 0.01, waterMaxDepth);
         updateWaterText(className, waterDepthTarget);
         if (customCompareInput) customCompareInput.value = '';
-        if (customCompareResult) customCompareResult.textContent = '';
+        if (customCompareResult) customCompareResult.innerHTML = '';
 
         if (!animate) {
             waterDepthCurrent = waterDepthTarget;
@@ -1742,6 +1835,48 @@ function initializeComparatorModule() {
         }
     });
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function setCustomCompareHint(message, variant = 'hint') {
+        if (!customCompareResult) return;
+        customCompareResult.innerHTML = `<div class="comparator-custom-result--${variant}">${escapeHtml(message)}</div>`;
+    }
+
+    function renderCustomCompareCard(data, className, objectName) {
+        if (!customCompareResult) return;
+        const title = data.title || `${className} и "${objectName}"`;
+        const comparison = data.comparison || '';
+        const fact = data.fact || '';
+        const takeaway = data.takeaway || '';
+        customCompareResult.innerHTML = `
+            <article class="comparator-custom-result-card">
+                <div class="comparator-custom-result-tag">AI-сравнение</div>
+                <h4 class="comparator-custom-result-title">${escapeHtml(title)}</h4>
+                <div class="comparator-custom-result-grid">
+                    <div class="comparator-custom-result-item">
+                        <strong>Сравнение</strong>
+                        <p>${escapeHtml(comparison)}</p>
+                    </div>
+                    <div class="comparator-custom-result-item">
+                        <strong>Интересный факт</strong>
+                        <p>${escapeHtml(fact)}</p>
+                    </div>
+                    <div class="comparator-custom-result-item">
+                        <strong>Вывод</strong>
+                        <p>${escapeHtml(takeaway)}</p>
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
     async function sendCustomObjectCompare(objectName) {
         if (!customCompareResult || !customCompareSend) return;
         const className = currentComparatorClass;
@@ -1749,14 +1884,14 @@ function initializeComparatorModule() {
         if (!strength) return;
 
         customCompareSend.disabled = true;
-        customCompareResult.textContent = 'Считаю сравнение...';
+        setCustomCompareHint('Считаю сравнение...', 'loading');
 
         const comparePrompt = [
-            `Сделай короткое сравнение прочности бетона класса ${className} (${strength.toFixed(1)} МПа)`,
+            `Сделай сравнение прочности бетона класса ${className} (${strength.toFixed(1)} МПа)`,
             `с объектом "${objectName}".`,
-            'Формат: 2-3 коротких предложения на русском языке.',
-            'Добавь один интересный инженерный факт или аналогию.',
-            'Тон: понятный, технически аккуратный, без воды.'
+            'Верни СТРОГО JSON-объект без markdown и без пояснений в формате:',
+            '{"title":"...","comparison":"...","fact":"...","takeaway":"..."}',
+            'Каждое поле: 1 короткая фраза или предложение на русском языке, технически корректно и понятно.'
         ].join(' ');
 
         const messages = [
@@ -1794,10 +1929,29 @@ function initializeComparatorModule() {
             if (!replyText) {
                 throw new Error(lastErr || 'Не удалось получить ответ');
             }
-            customCompareResult.textContent = replyText;
+
+            let parsed = null;
+            try {
+                const cleaned = replyText.replace(/```json|```/gi, '').trim();
+                parsed = JSON.parse(cleaned);
+            } catch {
+                parsed = null;
+            }
+
+            if (!parsed || typeof parsed !== 'object') {
+                const fallbackText = replyText.replace(/\s+/g, ' ').trim();
+                parsed = {
+                    title: `${className} и "${objectName}"`,
+                    comparison: fallbackText,
+                    fact: 'ИИ вернул ответ в свободной форме.',
+                    takeaway: `Для практики учитывайте не только МПа, но и тип нагрузки на "${objectName}".`
+                };
+            }
+
+            renderCustomCompareCard(parsed, className, objectName);
         } catch (error) {
             const msg = error && error.message ? error.message : String(error);
-            customCompareResult.textContent = `Не удалось получить сравнение: ${msg}. Попробуйте еще раз.`;
+            setCustomCompareHint(`Не удалось получить сравнение: ${msg}. Попробуйте еще раз.`, 'error');
         } finally {
             customCompareSend.disabled = false;
         }
@@ -1808,7 +1962,7 @@ function initializeComparatorModule() {
             ev.preventDefault();
             const objectName = customCompareInput.value.replace(/\s+/g, ' ').trim();
             if (!objectName) {
-                if (customCompareResult) customCompareResult.textContent = 'Введите объект для сравнения.';
+                setCustomCompareHint('Введите объект для сравнения.', 'hint');
                 return;
             }
             sendCustomObjectCompare(objectName);
@@ -1884,105 +2038,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-/* --- ПРОДВИНУТАЯ ЛОГИКА КОНСТРУКТОРА (4 ШАГА) --- */
-document.addEventListener('DOMContentLoaded', () => {
-    const wizard = document.getElementById('wizardForm');
-    if (!wizard) return;
-
-    const steps = wizard.querySelectorAll('.wizard-step');
-    const dots = document.querySelectorAll('.step-dot');
-    const progressIndicator = document.getElementById('progressIndicator');
-    const resultBlock = document.getElementById('wizardResult');
-
-    let currentStep = 1;
-
-    // Навигация
-    wizard.querySelectorAll('.btn-next').forEach(btn => {
-        btn.addEventListener('click', () => changeStep(currentStep + 1));
-    });
-
-    wizard.querySelectorAll('.btn-prev').forEach(btn => {
-        btn.addEventListener('click', () => changeStep(currentStep - 1));
-    });
-
-    const calcBtn = wizard.querySelector('.btn-calculate');
-    if (calcBtn) {
-        calcBtn.addEventListener('click', calculateResult);
-    }
-
-    document.getElementById('btnRestart').addEventListener('click', () => {
-        resultBlock.style.display = 'none';
-        wizard.style.display = 'block';
-        changeStep(1);
-    });
-
-    function changeStep(step) {
-        if (step < 1 || step > steps.length) return;
-
-        steps.forEach(s => {
-            s.classList.remove('active');
-            if (parseInt(s.dataset.step) === step) s.classList.add('active');
-        });
-
-        dots.forEach(d => {
-            d.classList.remove('active');
-            if (parseInt(d.dataset.step) <= step) d.classList.add('active');
-        });
-
-        const progressPercent = ((step - 1) / (steps.length - 1)) * 100;
-        if (progressIndicator) {
-            progressIndicator.style.width = `${progressPercent}%`;
-        }
-        currentStep = step;
-    }
-
-    function calculateResult() {
-        // УЛУЧШЕННЫЙ АЛГОРИТМ: Используем новую функцию из improved-calculator.js
-        calculateResultEnhanced();
-    }
-
-    function generateExpertExplanation(type, load, soil, season, resultClass) {
-        let html = `<p>На основе анализа ваших данных (тип: <strong>${translate(type)}</strong>, условия: <strong>${translate(soil)}</strong>) мы подобрали бетон класса <strong>${resultClass}</strong>.</p>`;
-
-        html += `<p><strong>Техническое обоснование:</strong><br>`;
-
-        // Обоснование по классу
-        if (['B15', 'B20'].includes(resultClass)) {
-            html += `Для указанных нагрузок это экономически эффективное решение. Прочности достаточно для обеспечения стабильности конструкции без переплаты за избыточные характеристики. `;
-        } else if (['B22.5', 'B25'].includes(resultClass)) {
-            html += `Этот класс обеспечивает высокую плотность бетона. В ваших условиях (особенно с учетом грунта) это необходимо для защиты арматуры от коррозии и сопротивления деформациям почвы. `;
-        } else {
-            html += `Высокий класс выбран из-за экстремальных условий эксплуатации или высоких нагрузок. Это гарантирует максимальную водонепроницаемость и несущую способность. `;
-        }
-
-        // Обоснование по Грунту
-        if (type === 'foundation') {
-            if (soil === 'clay') html += `<em>Глинистый грунт склонен к пучению, поэтому мы повысили марку прочности для жесткости фундамента. </em>`;
-            if (soil === 'water') html += `<em>Из-за высокого уровня грунтовых вод выбран бетон с индексом водонепроницаемости не ниже W6. </em>`;
-        }
-
-        // Обоснование по Сезону
-        if (season === 'winter') {
-            html += `<br><br><strong style="color: #e53e3e;">⚠️ Важно (Зимняя заливка):</strong><br>
-            Так как работы планируются в холодное время, <strong>обязательно</strong> используйте противоморозные добавки (ПМД) и обеспечьте прогрев бетона. Сам по себе класс ${resultClass} не гарантирует твердение на морозе без добавок.`;
-        } else if (season === 'hot') {
-            html += `<br><br><strong>Совет (Летняя жара):</strong><br>
-            При температуре выше +25°C бетон быстро теряет влагу. Обязательно укрывайте свежий бетон пленкой и поливайте его водой первые 3-5 дней, чтобы избежать трещин.`;
-        }
-
-        html += `</p>`;
-        return html;
-    }
-
-    function translate(key) {
-        const dict = {
-            'foundation': 'Фундамент', 'floor': 'Стяжка', 'outdoor': 'Улица', 'wall': 'Стена', 'pool': 'Бассейн',
-            'light': 'Легкая', 'medium': 'Средняя', 'heavy': 'Высокая',
-            'sand': 'Сухой грунт', 'clay': 'Глина/Пучение', 'water': 'Высокие воды'
-        };
-        return dict[key] || key;
-    }
-});
 
 /* карта */
 (function () {
@@ -2254,4 +2309,572 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     revealEls.forEach(el => obs.observe(el));
+})();(function () {
+    const wizard = document.getElementById('wizardForm');
+    if (!wizard) return;
+
+    const resultBlock = document.getElementById('wizardResult');
+
+    // ── Группы типов конструкций ──────────────────────────────────
+    const TYPE_GROUPS = {
+        // Простые — не нужны этажи и грунт
+        simple:     ['floor_screed','prep_layers','sidewalks','fence_foundation','garden_paths','small_outbuildings'],
+        // Фундаменты — нужен грунт, УГВ, этажи
+        foundation: ['foundation','slab_foundation','pile_foundation','basement'],
+        // Стены/перекрытия/колонны — нужны этажи
+        structural: ['wall','self_supporting_walls','floor_slab','column'],
+        // Водные — только влажность, климат, армирование
+        water:      ['pool'],
+        // Транспортные — нагрузки, условия, климат (без этажей и грунта)
+        transport:  ['bridge','road_slab'],
+    };
+
+    function getGroup(type) {
+        for (const [g, types] of Object.entries(TYPE_GROUPS))
+            if (types.includes(type)) return g;
+        return 'structural';
+    }
+
+    // ── Какие шаги показывать для каждой группы ──────────────────
+    // Шаги: 1=тип, 2=нагрузки, 3=этажи, 4=грунт+вода, 5=влажность, 6=климат, 7=армирование
+    const STEPS_BY_GROUP = {
+        simple:     [1, 2, 5, 6, 7],
+        foundation: [1, 2, 3, 4, 5, 6, 7],
+        structural: [1, 2, 3, 5, 6, 7],
+        water:      [1, 5, 6, 7],
+        transport:  [1, 2, 5, 6, 7],
+    };
+
+    // ── Заголовки и подсказки для каждого шага ───────────────────
+    const STEP_META = {
+        1: { title: 'Тип конструкции',         desc:  'Выберите тип конструкции' },
+        2: { title: 'Характер нагрузок',        desc:  'Какие нагрузки воспримет конструкция?' },
+        3: { title: 'Этажность здания',         desc:  'Сколько этажей планируется?' },
+        4: { title: 'Грунт и грунтовые воды',   desc:  'Тип грунта и уровень УГВ' },
+        5: { title: 'Условия эксплуатации',     desc:  'В каких условиях будет работать конструкция?' },
+        6: { title: 'Климат и срок заливки',    desc:  'Климатическая зона и время заливки' },
+        7: { title: 'Армирование и размеры',    desc:  'Последний шаг — армирование и толщина' },
+    };
+
+    const allStepEls = wizard.querySelectorAll('.wizard-step');
+    const dots       = document.querySelectorAll('.step-dot');
+    const ind        = document.getElementById('progressIndicator');
+
+    let sequence = [1, 2, 3, 4, 5, 6, 7]; // будет пересчитан после шага 1
+    let pos = 0; // позиция в sequence
+
+    function getType() {
+        const el = wizard.querySelector('input[name="type"]:checked');
+        return el ? el.value : null;
+    }
+
+    function rebuildSequence() {
+        const type  = getType();
+        const group = type ? getGroup(type) : 'foundation';
+        sequence = STEPS_BY_GROUP[group] || [1,2,3,4,5,6,7];
+    }
+
+    function showPos(p, skipScroll) {
+        pos = p;
+        const stepNum = sequence[pos];
+
+        // Скрываем все шаги, показываем нужный
+        allStepEls.forEach(el => {
+            el.classList.toggle('active', parseInt(el.dataset.step) === stepNum);
+        });
+
+        // Обновляем точки прогресса по количеству шагов в sequence
+        const totalDots = sequence.length;
+        dots.forEach((d, i) => {
+            d.style.display = i < totalDots ? '' : 'none';
+            d.textContent   = i + 1;
+            d.classList.toggle('active', i === pos);
+            d.classList.toggle('done',   i < pos);
+        });
+
+        // Прогресс-бар
+        if (ind) ind.style.width = (pos / (sequence.length - 1) * 100) + '%';
+
+        // Обновляем заголовок и описание шага
+        const meta = STEP_META[stepNum];
+        if (meta) {
+            const titleEl = allStepEls[stepNum - 1]?.querySelector('.step-title');
+            const descEl  = allStepEls[stepNum - 1]?.querySelector('.step-description');
+            // Уже заданы в HTML, не перезаписываем
+        }
+
+        // Прокрутка к верху блока — только при навигации пользователя, не при инициализации
+        if (!skipScroll) {
+            const section = document.getElementById('constructor');
+            if (section) {
+                const header = document.getElementById('siteHeader');
+                const offset = header ? header.offsetHeight + 20 : 20;
+                window.scrollTo({ top: section.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
+            }
+        }
+    }
+
+    // Кнопки «Далее»
+    wizard.querySelectorAll('.btn-next').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Всегда пересчитываем последовательность по текущему типу
+            rebuildSequence();
+            if (pos < sequence.length - 1) showPos(pos + 1);
+        });
+    });
+
+    // Кнопки «Назад»
+    wizard.querySelectorAll('.btn-prev').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (pos > 0) showPos(pos - 1);
+        });
+    });
+
+    // Кнопка «Рассчитать»
+    const calcBtn = wizard.querySelector('.btn-calculate');
+    if (calcBtn) calcBtn.addEventListener('click', calculateResult);
+
+    // Кнопка «Начать заново»
+    const restartBtn = document.getElementById('btnRestart');
+    if (restartBtn) restartBtn.addEventListener('click', () => {
+        pos = 0;
+        sequence = [1, 2, 3, 4, 5, 6, 7];
+        showPos(0);
+        wizard.style.display = 'block';
+        resultBlock.style.display = 'none';
+    });
+
+    function val(name) {
+        const el = wizard.querySelector('input[name="' + name + '"]:checked');
+        return el ? el.value : null;
+    }
+
+    function calculateResult() {
+        const type        = val('type')         || 'foundation';
+        const load        = val('load')         || 'light';
+        const floors      = parseInt(val('floors') || '1');
+        const soil        = val('soil')         || 'sand';
+        const water       = val('water')        || 'low';
+        const moisture    = val('moisture')     || 'dry';
+        const tempzone    = val('tempzone')     || 'moderate';
+        const season      = val('season')       || 'summer';
+        const reinforcement = val('reinforcement') || 'none';
+        const thickness   = val('thickness')    || 'medium';
+        const group       = getGroup(type);
+
+        const baseByType = {
+            floor_screed:'B12.5', prep_layers:'B10', sidewalks:'B15',
+            fence_foundation:'B15', garden_paths:'B15', small_outbuildings:'B15',
+            foundation:'B20', slab_foundation:'B22.5', pile_foundation:'B25',
+            basement:'B25', wall:'B25', self_supporting_walls:'B20',
+            floor_slab:'B22.5', pool:'B25', road_slab:'B25',
+            column:'B25', bridge:'B35',
+        };
+
+        let base = baseByType[type] || 'B20';
+        let up = 0, wt = null, fr = null, notes = [];
+
+        // Нагрузки (только если шаг присутствует)
+        if (sequence.includes(2)) {
+            if (load === 'medium')  up += 1;
+            if (load === 'heavy')   up += 2;
+            if (load === 'dynamic') up += 1;
+        }
+
+        // Этажность
+        if (sequence.includes(3)) {
+            if (floors >= 2  && floors < 5)  up += 1;
+            if (floors >= 5  && floors < 16) up += 2;
+            if (floors >= 16)                up += 3;
+        }
+
+        // Грунт + УГВ
+        if (sequence.includes(4)) {
+            if (soil === 'clay') up += 1;
+            if (soil === 'peat') { up += 2; notes.push('Слабый грунт: рекомендуется свайный фундамент или замена грунта.'); }
+            if (water === 'medium') { up += 1; wt = 'W6'; }
+            if (water === 'high')   { up += 2; wt = 'W8'; notes.push('Высокий УГВ: обязательна гидроизоляция и дренаж.'); }
+        }
+
+        // Влажность / среда
+        if (moisture === 'humid')          { wt = wt || 'W4'; }
+        if (moisture === 'outdoor')        { up += 1; wt = wt || 'W4'; fr = fr || 'F150'; }
+        if (moisture === 'constant_water') { up += 2; wt = 'W8'; notes.push('Постоянный контакт с водой: мин. W8, гидроизоляция обязательна.'); }
+        if (moisture === 'aggressive_water'){ up += 3; wt = 'W12'; notes.push('Агрессивная среда: сульфатостойкий цемент, марка W12.'); }
+
+        // Бассейн — минимум W8 в любом случае
+        if (type === 'pool') { wt = 'W8'; fr = fr || 'F150'; }
+
+        // Мосты — повышенные требования
+        if (group === 'transport') { fr = 'F200'; notes.push('Транспортные сооружения: морозостойкость не ниже F200.'); }
+
+        // Климат
+        if (tempzone === 'cold') { up += 1; fr = 'F200'; }
+        if (tempzone === 'hot')  { notes.push('Жаркий климат: жаропрочные добавки, усиленный уход при твердении.'); }
+
+        // Сезон
+        if (season === 'winter') notes.push('Зимняя заливка: противоморозные добавки и прогрев обязательны.');
+        if (season === 'hot')    notes.push('Жаркая погода: укрывайте и поливайте бетон первые 5–7 дней.');
+
+        // Армирование
+        if (reinforcement === 'prestressed') { up += 2; notes.push('Предв. напряжённые конструкции: минимальный класс B30 по СП.'); }
+
+        // Толщина
+        if (thickness === 'thin') up += 1;
+
+        const finalClass = increaseClass(base, up);
+        const ci = CONCRETE_CLASSES_INDEXED.indexOf(finalClass);
+        const b30i = CONCRETE_CLASSES_INDEXED.indexOf('B30');
+        const resultClass = (reinforcement === 'prestressed' && ci < b30i) ? 'B30' : finalClass;
+
+        if (!wt) wt = ci <= 3 ? 'W2' : ci <= 6 ? 'W4' : ci <= 9 ? 'W6' : 'W8';
+        if (!fr) fr = ci <= 4 ? 'F100' : ci <= 7 ? 'F150' : 'F200';
+
+        const classToMark = {
+            'B10':'М150','B12.5':'М150','B15':'М200','B20':'М250',
+            'B22.5':'М300','B25':'М350','B27.5':'М350','B30':'М400',
+            'B35':'М450','B40':'М550','B45':'М600','B50':'М650',
+            'B55':'М700','B60':'М800','B65':'М850','B70':'М900',
+        };
+
+        const typeNames = {
+            floor_screed:'Стяжка пола', prep_layers:'Подготовительный слой',
+            sidewalks:'Тротуар/отмостка', fence_foundation:'Фундамент под забор',
+            garden_paths:'Садовая дорожка', small_outbuildings:'Хозпостройка',
+            foundation:'Ленточный фундамент', slab_foundation:'Плитный фундамент',
+            pile_foundation:'Свайно-ростверковый', basement:'Цоколь/подвал',
+            wall:'Несущая стена', self_supporting_walls:'Самонесущая стена',
+            floor_slab:'Перекрытие', pool:'Бассейн/резервуар',
+            road_slab:'Дорожная плита', column:'Колонна/опора', bridge:'Мост/эстакада',
+        };
+
+        document.getElementById('resClass').textContent = resultClass;
+        document.getElementById('resMark').textContent  = classToMark[resultClass] || '—';
+        const rm2 = document.getElementById('resMark2');
+        if (rm2) rm2.textContent = classToMark[resultClass] || '—';
+        const rw = document.getElementById('resWater');
+        if (rw) rw.textContent = wt;
+        const rf = document.getElementById('resFrost');
+        if (rf) rf.textContent = fr;
+
+        const resText = document.getElementById('resText');
+        if (resText) resText.innerHTML =
+            'Для конструкции «<strong>' + (typeNames[type]||type) + '</strong>» ' +
+            'рекомендуется класс <strong>' + resultClass + '</strong>. ' +
+            'Водонепроницаемость: <strong>' + wt + '</strong>, морозостойкость: <strong>' + fr + '</strong>.';
+
+        const notesEl = document.getElementById('resNotes');
+        if (notesEl) {
+            if (notes.length > 0) {
+                notesEl.innerHTML = '<strong>Дополнительные рекомендации:</strong><ul>' +
+                    notes.map(n => '<li>' + n + '</li>').join('') + '</ul>';
+                notesEl.style.display = 'block';
+            } else {
+                notesEl.style.display = 'none';
+            }
+        }
+
+        wizard.style.display = 'none';
+        resultBlock.style.display = 'block';
+    }
+
+    showPos(0, true); // инициализация — не скроллить
+})
+/* карта */
+(function () {
+    const CONCRETE_CLASSES = ['B10', 'B12.5', 'B15', 'B20', 'B22.5', 'B25', 'B27.5', 'B30', 'B35', 'B40', 'B45', 'B50', 'B55', 'B60', 'B65', 'B70'];
+
+
+    const SPB_OBJECTS_BY_CLASS = {
+        'B10': [
+            { name: 'Подбетонка и бордюры, Невский пр.', lat: 59.934, lng: 30.358 },
+            { name: 'Подготовительные работы, Летний сад', lat: 59.942, lng: 30.336 }
+        ],
+        'B12.5': [
+            { name: 'Стяжки и дорожки, Михайловский сад', lat: 59.939, lng: 30.334 },
+            { name: 'Бордюры, Каменноостровский пр.', lat: 59.965, lng: 30.317 }
+        ],
+        'B15': [
+            { name: 'Фундаменты малоэтажных зданий, Колпино', lat: 59.750, lng: 30.601 },
+            { name: 'Отмостки, жилой комплекс Приморский', lat: 60.002, lng: 30.251 }
+        ],
+        'B20': [
+            { name: 'Ленточные фундаменты, ЖК «Город на реке»', lat: 59.918, lng: 30.478 },
+            { name: 'Плиты перекрытий, жилые кварталы', lat: 59.955, lng: 30.289 }
+        ],
+        'B22.5': [
+            { name: 'Монолитные стены, ЖК «Полюстрово Парк»', lat: 59.978, lng: 30.378 },
+            { name: 'Фундаменты коттеджей, Курортный район', lat: 60.172, lng: 29.878 }
+        ],
+        'B25': [
+            { name: 'ЖК «Невская ратуша»', lat: 59.928, lng: 30.362 },
+            { name: 'ЖК «Сенат Плаза»', lat: 59.931, lng: 30.348 },
+            { name: 'Многоэтажный монолит, Приморский р-н', lat: 60.004, lng: 30.258 }
+        ],
+        'B27.5': [
+            { name: 'Несущие конструкции, БЦ «Лахта»', lat: 59.985, lng: 30.175 },
+            { name: 'Колонны и ригели, ЖК «Северная долина»', lat: 60.051, lng: 30.334 }
+        ],
+        'B30': [
+            { name: 'Ладожский вокзал', lat: 59.932, lng: 30.462 },
+            { name: 'Фундаменты и перекрытия, стадион «Газпром Арена»', lat: 59.973, lng: 30.221 },
+            { name: 'Промзона «Парнас»', lat: 60.069, lng: 30.334 }
+        ],
+        'B35': [
+            { name: 'Большой Обуховский (Вантовый) мост', lat: 59.857, lng: 30.517 },
+            { name: 'Мост Бетанкура', lat: 59.923, lng: 30.257 },
+            { name: 'Эстакады ЗСД (Западный скоростной диаметр)', lat: 59.880, lng: 30.220 },
+            { name: 'Развязка КАД «Парнас»', lat: 60.068, lng: 30.330 }
+        ],
+        'B40': [
+            { name: 'Северная станция аэрации', lat: 59.988, lng: 30.150 },
+            { name: 'Комплекс защитных сооружений (дамба)', lat: 59.883, lng: 29.883 }
+        ],
+        'B45': [
+            { name: 'Лахта Центр (башня)', lat: 59.987, lng: 29.772 },
+            { name: 'Высотные ядра небоскрёба «Невская башня»', lat: 59.931, lng: 30.355 }
+        ],
+        'B50': [
+            { name: 'Специальные конструкции, объекты обороны', lat: 59.950, lng: 30.300 }
+        ],
+        'B55': [
+            { name: 'Критически ответственные узлы, Лахта Центр', lat: 59.986, lng: 29.771 }
+        ],
+        'B60': [
+            { name: 'Особо ответственные конструкции, высотные объекты', lat: 59.986, lng: 29.773 }
+        ],
+        'B65': [{ name: 'Специальные сооружения СПб', lat: 59.934, lng: 30.335 }],
+        'B70': [{ name: 'Уникальные инженерные объекты', lat: 59.935, lng: 30.336 }]
+    };
+
+    const mapCursorZone = document.getElementById('mapCursorZone');
+    const mapToggleBtn = document.getElementById('mapToggleBtn');
+    const mapSection = document.getElementById('mapSection');
+    const mapClassesGrid = document.getElementById('mapClassesGrid');
+    const yandexMapEl = document.getElementById('yandexMap');
+    const customCursorMap = document.getElementById('customCursorMap');
+
+    let yandexMap = null;
+    let currentMapPlacemarks = [];
+    let selectedMapClass = null;
+    let mapInitialized = false;
+
+    if (!mapToggleBtn || !mapSection || !mapClassesGrid || !yandexMapEl) return;
+
+
+    mapToggleBtn.addEventListener('click', function () {
+        const isOpen = mapSection.classList.contains('map-section--open');
+        if (isOpen) {
+            mapSection.classList.remove('map-section--open');
+            mapSection.setAttribute('aria-hidden', 'true');
+            mapToggleBtn.setAttribute('aria-expanded', 'false');
+        } else {
+            mapSection.classList.add('map-section--open');
+            mapSection.setAttribute('aria-hidden', 'false');
+            mapToggleBtn.setAttribute('aria-expanded', 'true');
+            if (!mapInitialized) {
+                buildMapClassesGrid();
+                mapInitialized = true;
+                requestAnimationFrame(function () {
+                    setTimeout(initYandexMap, 150);
+                });
+            }
+        }
+    });
+
+    function buildMapClassesGrid() {
+        mapClassesGrid.innerHTML = '';
+        CONCRETE_CLASSES.forEach(function (cls) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'map-class-btn';
+            btn.textContent = cls;
+            btn.dataset.class = cls;
+            btn.addEventListener('click', function () {
+                selectMapClass(cls);
+            });
+            mapClassesGrid.appendChild(btn);
+        });
+    }
+
+    function selectMapClass(cls) {
+        document.querySelectorAll('.map-class-btn').forEach(function (b) {
+            b.classList.toggle('selected', b.dataset.class === cls);
+        });
+        selectedMapClass = cls;
+        updateMapPlacemarks();
+    }
+
+    function updateMapPlacemarks() {
+        if (!yandexMap) return;
+        currentMapPlacemarks.forEach(function (pm) {
+            yandexMap.geoObjects.remove(pm);
+        });
+        currentMapPlacemarks = [];
+        if (!selectedMapClass) return;
+        const objects = SPB_OBJECTS_BY_CLASS[selectedMapClass];
+        if (!objects || !objects.length) return;
+        if (typeof ymaps === 'undefined') return;
+        objects.forEach(function (obj) {
+            const placemark = new ymaps.Placemark(
+                [obj.lat, obj.lng],
+                { balloonContent: '<strong>' + obj.name + '</strong><br>Класс бетона: ' + selectedMapClass },
+                { preset: 'islands#circleIcon', iconColor: '#1a365d' }
+            );
+            yandexMap.geoObjects.add(placemark);
+            currentMapPlacemarks.push(placemark);
+        });
+    }
+
+    function initYandexMap() {
+        if (typeof ymaps === 'undefined') return;
+        ymaps.ready(function () {
+            yandexMap = new ymaps.Map(yandexMapEl, {
+                center: [59.9343, 30.3351],
+                zoom: 10,
+                controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
+            });
+        });
+    }
+
+    // курсор
+    if (customCursorMap && mapCursorZone) {
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0, lastX = 0, lastY = 0;
+        const easing = 0.18;
+
+        mapCursorZone.addEventListener('mouseenter', function () {
+            customCursorMap.classList.add('is-active');
+        });
+        mapCursorZone.addEventListener('mouseleave', function () {
+            customCursorMap.classList.remove('is-active');
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateMapCursor() {
+            cursorX += (mouseX - cursorX) * easing;
+            cursorY += (mouseY - cursorY) * easing;
+            const dx = cursorX - lastX;
+            const dy = cursorY - lastY;
+            const speed = Math.min(Math.sqrt(dx * dx + dy * dy) / 25, 0.6);
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+            const stretch = speed;
+            const squeeze = Math.max(1 - stretch, 0.4);
+            customCursorMap.style.transform = 'translate(calc(' + cursorX + 'px - 50%), calc(' + cursorY + 'px - 50%)) rotate(' + angle + 'deg) scaleX(' + (1 + stretch) + ') scaleY(' + squeeze + ')';
+            lastX = cursorX;
+            lastY = cursorY;
+            requestAnimationFrame(animateMapCursor);
+        }
+        animateMapCursor();
+    }
+})();
+
+/* ============================================================
+   НОВЫЕ ФУНКЦИИ: мобильная навигация, прогрессбар, reveal
+   ============================================================ */
+
+// Мобильная навигация
+(function() {
+    const toggle = document.getElementById('mobileNavToggle');
+    const nav = document.getElementById('mainNav');
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener('click', function() {
+        const isOpen = nav.classList.toggle('nav-open');
+        toggle.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Закрывать при клике на ссылку
+    nav.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('nav-open');
+            toggle.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+        });
+    });
+})();
+
+// Прогресс-бар прокрутки
+(function() {
+    const bar = document.getElementById('navProgressBar');
+    if (!bar) return;
+    function updateBar() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', updateBar, { passive: true });
+    updateBar();
+})();
+
+// Активная ссылка в навигации по скроллу
+(function() {
+    const sections = ['strength', 'constructor', 'application', 'education', 'composition'];
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+    const header = document.getElementById('siteHeader');
+
+    function onScroll() {
+        const scrollY = window.scrollY + (header ? header.offsetHeight : 80) + 80;
+        let current = '';
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.offsetTop <= scrollY) current = id;
+        });
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.section === current);
+        });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+})();
+
+// Reveal анимация для edu-карточек
+(function() {
+    const revealEls = document.querySelectorAll('[data-reveal]');
+    if (!revealEls.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('revealed');
+                }, i * 80);
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    revealEls.forEach(el => obs.observe(el));
+})();
+
+/* ============================================================
+   SCROLL ANIMATIONS ENGINE — data-anim
+   ============================================================ */
+(function () {
+    'use strict';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var targets = document.querySelectorAll('[data-anim]');
+    if (!targets.length) return;
+
+    targets.forEach(function (el) {
+        var delay = el.getAttribute('data-anim-delay');
+        if (delay) el.style.transitionDelay = delay + 'ms';
+    });
+
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('anim-visible');
+                io.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    targets.forEach(function (el) { io.observe(el); });
 })();
